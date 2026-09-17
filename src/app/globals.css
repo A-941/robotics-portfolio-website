@@ -37,3 +37,15 @@ body {
 pre code {
   font-family: var(--font-mono);
 }
+
+/* Custom cursor: hide native cursor on desktop pointer devices */
+@media (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+}
+
+/* Smooth page scroll */
+html {
+  scroll-behavior: smooth;
+}

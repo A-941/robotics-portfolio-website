@@ -15,6 +15,8 @@ import {
   CheckCircle2,
   Terminal,
   Activity,
+  MessageSquare,
+  Mail,
 } from "lucide-react";
 import { GithubIcon } from "@/components/Icons";
 import { projectsData } from "@/data/projectsData";
@@ -22,6 +24,7 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { SkillsSection } from "@/components/SkillsSection";
 import { RoadmapSection } from "@/components/RoadmapSection";
 import { HeroOrbitalEffect } from "@/components/HeroOrbitalEffect";
+import { MagneticButton } from "@/components/MagneticButton";
 
 export default function HomePage() {
   return (
@@ -99,32 +102,31 @@ export default function HomePage() {
                 </span>
               </motion.div>
 
-              {/* Action Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
                 className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-3"
               >
-                <motion.a
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
+                <MagneticButton
+                  as="a"
                   href="#projects"
+                  strength={35}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white shadow-lg shadow-cyan-500/25 transition-all"
                 >
                   <BookOpen className="w-4 h-4" />
                   Explore Tutorials
                   <ArrowRight className="w-4 h-4" />
-                </motion.a>
+                </MagneticButton>
 
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Link
-                    href="/about"
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-700/80 transition-all hover:border-zinc-500"
-                  >
-                    Resource Guide & Philosophy
-                  </Link>
-                </motion.div>
+                <MagneticButton
+                  as="a"
+                  href="/about"
+                  strength={25}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-700/80 transition-all hover:border-zinc-500"
+                >
+                  Resource Guide &amp; Philosophy
+                </MagneticButton>
 
                 <motion.a
                   whileHover={{ scale: 1.02 }}
@@ -234,6 +236,58 @@ export default function HomePage() {
 
       {/* Curriculum Sequence Roadmap Section */}
       <RoadmapSection />
+
+      {/* Contact CTA Banner */}
+      <section className="relative py-20 sm:py-28 border-t border-zinc-800/60 bg-gradient-to-b from-zinc-950 to-[#07070a] overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-indigo-500/5 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[200px] bg-cyan-500/6 blur-[100px] pointer-events-none rounded-full" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="space-y-6"
+          >
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+              <MessageSquare className="w-3.5 h-3.5" />
+              Let's Build Together
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+              Questions, Feedback, or{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">
+                Collaboration?
+              </span>
+            </h2>
+            <p className="text-zinc-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+              Found a circuit error, want to contribute a tutorial, or just learning and curious about something? Reach out — we'd love to hear from you.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+              <MagneticButton
+                as="a"
+                href="/contact"
+                strength={32}
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white shadow-lg shadow-cyan-500/20 transition-all"
+              >
+                <Mail className="w-4 h-4" />
+                Get In Touch
+              </MagneticButton>
+              <MagneticButton
+                as="a"
+                href="https://github.com/A-941/arduino-robotics-journey"
+                target="_blank"
+                rel="noopener noreferrer"
+                strength={25}
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium text-sm bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-700/80 transition-all hover:border-zinc-500"
+              >
+                <GithubIcon className="w-4 h-4 text-cyan-400" />
+                Contribute on GitHub
+                <ExternalLink className="w-3 h-3 text-zinc-500" />
+              </MagneticButton>
+            </div>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 }

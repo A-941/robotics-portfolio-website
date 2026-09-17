@@ -20,6 +20,7 @@ import { projectsData, Project } from "@/data/projectsData";
 import { CodeBlock } from "@/components/CodeBlock";
 import { CircuitViewer } from "@/components/CircuitViewer";
 import { VideoPlayer } from "@/components/VideoPlayer";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 interface ProjectPageProps {
   params: Promise<{ id: string }>;
@@ -75,6 +76,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
 
         {/* Project Header */}
+        <ScrollReveal>
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
@@ -105,12 +107,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             ))}
           </div>
         </div>
+        </ScrollReveal>
 
         {/* Section 1: Components Used */}
+        <ScrollReveal delay={0.05}>
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2.5 mb-6 pb-3 border-b border-zinc-800/80">
             <Layers className="w-5 h-5 text-cyan-400" />
-            <h2 className="text-xl font-bold text-white">Bill of Materials & Components</h2>
+            <h2 className="text-xl font-bold text-white">Bill of Materials &amp; Components</h2>
           </div>
 
           <div className="overflow-x-auto">
@@ -134,8 +138,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </table>
           </div>
         </section>
+        </ScrollReveal>
 
         {/* Section 2: Colorful Breadboard Circuit Diagram */}
+        <ScrollReveal delay={0.08}>
         <section className="space-y-4">
           <div className="flex items-center gap-2.5 pb-2">
             <Cpu className="w-5 h-5 text-cyan-400" />
@@ -152,6 +158,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             caption={`Tinkercad-style physical layout for ${project.title}. Red/colored wires represent digital pin signals, black wires represent GND return paths.`}
           />
         </section>
+        </ScrollReveal>
 
         {/* Section 3: Step-by-Step Wiring Explanation */}
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 sm:p-8 backdrop-blur-sm space-y-6">

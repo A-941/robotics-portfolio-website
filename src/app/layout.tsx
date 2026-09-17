@@ -3,6 +3,9 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ScrollProgressBar } from "@/components/ScrollProgressBar";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { CustomCursor } from "@/components/CustomCursor";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -75,6 +78,9 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} dark scroll-smooth`}
     >
       <body className="min-h-screen flex flex-col bg-[#08080c] text-zinc-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-200 antialiased overflow-x-hidden">
+        <LoadingScreen />
+        <CustomCursor />
+        <ScrollProgressBar />
         <Navbar />
         <main className="flex-grow relative z-10">{children}</main>
         <Footer />

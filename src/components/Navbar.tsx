@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Cpu, ExternalLink, Sparkles, BookOpen } from "lucide-react";
+import { Menu, X, Cpu, ExternalLink, MessageSquare } from "lucide-react";
 import { GithubIcon } from "@/components/Icons";
 
 export const Navbar = () => {
@@ -13,10 +13,11 @@ export const Navbar = () => {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Tutorials & Projects", href: "/#projects" },
+    { name: "Tutorials", href: "/#projects" },
     { name: "Curriculum", href: "/#skills" },
     { name: "Roadmap", href: "/#roadmap" },
-    { name: "Resource Guide", href: "/about" },
+    { name: "Guide", href: "/about" },
+    { name: "Contact", href: "/contact" },
   ];
 
   return (
@@ -78,8 +79,18 @@ export const Navbar = () => {
             })}
           </nav>
 
-          {/* Desktop Right Action */}
+          {/* Desktop Right Actions */}
           <div className="hidden md:flex items-center gap-3">
+            <Link href="/contact">
+              <motion.span
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-cyan-500/15 to-indigo-500/15 text-cyan-300 border border-cyan-500/40 hover:border-cyan-400/70 transition-all shadow-sm cursor-pointer"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Contact</span>
+              </motion.span>
+            </Link>
             <motion.a
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -93,6 +104,7 @@ export const Navbar = () => {
               <ExternalLink className="w-3 h-3 text-zinc-400" />
             </motion.a>
           </div>
+
 
           {/* Mobile Hamburger Button */}
           <div className="flex md:hidden">
