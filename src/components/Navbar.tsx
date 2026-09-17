@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Cpu, ExternalLink } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Menu, X, Cpu, ExternalLink, Sparkles, BookOpen } from "lucide-react";
 import { GithubIcon } from "@/components/Icons";
 
 export const Navbar = () => {
@@ -12,47 +13,66 @@ export const Navbar = () => {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Projects", href: "/#projects" },
-    { name: "Skills", href: "/#skills" },
+    { name: "Tutorials & Projects", href: "/#projects" },
+    { name: "Curriculum", href: "/#skills" },
     { name: "Roadmap", href: "/#roadmap" },
-    { name: "About", href: "/about" },
+    { name: "Resource Guide", href: "/about" },
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-md transition-all">
+    <motion.header
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-[#08080c]/80 backdrop-blur-xl transition-all"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo / Brand */}
+          {/* Brand Identity */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
-              <Cpu className="w-5 h-5" />
-            </div>
+            <motion.div
+              whileHover={{ scale: 1.06, rotate: 3 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 border border-cyan-400/30"
+            >
+              <Cpu className="w-5 h-5 text-cyan-100" />
+            </motion.div>
             <div className="flex flex-col">
-              <span className="font-bold text-base tracking-tight text-white group-hover:text-cyan-400 transition-colors">
-                Dhruv Makwana
+              <span className="font-extrabold text-base tracking-tight text-white group-hover:text-cyan-400 transition-colors flex items-center gap-1.5">
+                Robotics Lab
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-mono font-medium">
+                  v2.0
+                </span>
               </span>
               <span className="text-[11px] text-zinc-400 font-mono flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Hardware & AI Journey
+                Open Hardware & AI Resource
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800/60 backdrop-blur-md">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  className={`relative px-3.5 py-1.5 rounded-lg text-xs lg:text-sm font-medium transition-all ${
                     isActive
-                      ? "text-cyan-400 bg-cyan-500/10 font-semibold"
-                      : "text-zinc-300 hover:text-white hover:bg-zinc-800/60"
+                      ? "text-cyan-300 font-semibold"
+                      : "text-zinc-300 hover:text-white"
                   }`}
                 >
-                  {link.name}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNavIndicator"
+                      className="absolute inset-0 rounded-lg bg-cyan-500/15 border border-cyan-500/30"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{link.name}</span>
                 </Link>
               );
             })}
@@ -60,58 +80,69 @@ export const Navbar = () => {
 
           {/* Desktop Right Action */}
           <div className="hidden md:flex items-center gap-3">
-            <a
+            <motion.a
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               href="https://github.com/A-941/arduino-robotics-journey"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-200 hover:text-white border border-zinc-700/80 hover:border-zinc-600 transition-all hover:scale-102 active:scale-98 shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900/90 text-zinc-200 hover:text-white border border-zinc-700/70 hover:border-cyan-500/50 transition-all shadow-sm"
             >
-              <GithubIcon className="w-4 h-4" />
+              <GithubIcon className="w-4 h-4 text-cyan-400" />
               <span>GitHub Repo</span>
               <ExternalLink className="w-3 h-3 text-zinc-400" />
-            </a>
+            </motion.a>
           </div>
 
           {/* Mobile Hamburger Button */}
           <div className="flex md:hidden">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.92 }}
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-colors"
+              className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
               aria-label="Toggle navigation menu"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
 
       {/* Mobile Drawer Menu */}
-      {isOpen && (
-        <div className="md:hidden border-b border-zinc-800 bg-zinc-950 px-4 pt-2 pb-5 space-y-1 animate-in slide-in-from-top-2 duration-200">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 rounded-md text-base font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 transition-colors"
-            >
-              {link.name}
-            </Link>
-          ))}
-          <div className="pt-3 border-t border-zinc-800">
-            <a
-              href="https://github.com/A-941/arduino-robotics-journey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-semibold bg-zinc-900 text-white border border-zinc-700"
-            >
-              <GithubIcon className="w-4 h-4" />
-              <span>View on GitHub (A-941)</span>
-              <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
-            </a>
-          </div>
-        </div>
-      )}
-    </header>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="md:hidden border-b border-zinc-800 bg-[#0c0d14]/95 px-4 pt-3 pb-6 space-y-2 backdrop-blur-2xl overflow-hidden"
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition-colors"
+              >
+                {link.name}
+              </Link>
+            ))}
+            <div className="pt-3 border-t border-zinc-800/80">
+              <a
+                href="https://github.com/A-941/arduino-robotics-journey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-white border border-zinc-700 hover:border-cyan-500/50"
+              >
+                <GithubIcon className="w-4 h-4 text-cyan-400" />
+                <span>Open-Source Hardware Repository</span>
+                <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 };

@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: ProjectPageProps) {
   if (!project) return { title: "Project Not Found" };
 
   return {
-    title: `${project.title} | Dhruv's Robotics Journey`,
+    title: `${project.title} | Robotics & Arduino Lab Guide`,
     description: project.shortDescription,
   };
 }
@@ -370,11 +370,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           />
         </section>
 
-        {/* Section 7: What I Learned (First-Person Perspective) */}
+        {/* Section 7: Key Engineering Takeaways & Circuit Insights */}
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 sm:p-8 backdrop-blur-sm space-y-5">
           <div className="flex items-center gap-2.5 pb-3 border-b border-zinc-800/80">
             <CheckCircle className="w-5 h-5 text-emerald-400" />
-            <h2 className="text-xl sm:text-2xl font-bold text-white">What I Learned (Dhruv's Takeaways)</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Key Engineering Takeaways & Circuit Insights</h2>
           </div>
 
           <div className="space-y-3">

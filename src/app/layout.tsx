@@ -18,22 +18,21 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://robotics-portfolio-website.vercel.app"),
-  title: "Dhruv Makwana | Arduino & Robotics Learning Journey",
+  title: "Robotics & Arduino Learning Lab | Real Circuits, Real Code, Real Explanations",
   description:
-    "2nd-year CS student documenting hardware, embedded systems, and robotics from scratch. Real breadboard schematics, verified C++ firmware, and physical hardware demos.",
+    "An open-source educational resource for beginners in ECE and robotics. Step-by-step breadboard diagrams, verified C++ firmware, and physical hardware demos from first principles.",
   keywords: [
-    "Arduino",
-    "Robotics",
+    "Arduino Tutorials",
+    "Robotics Guide",
     "Embedded Systems",
-    "Edge AI",
-    "Dhruv Makwana",
-    "Tinkercad Circuits",
-    "Computer Science",
-    "Breadboard Prototyping",
+    "ECE Learning Resource",
+    "Breadboard Circuits",
     "Digital Logic",
+    "C++ Firmware",
+    "Tinkercad Circuits",
+    "Sensors and Actuators",
+    "Edge AI & Physical Computing",
   ],
-  authors: [{ name: "Dhruv Makwana", url: "https://github.com/A-941" }],
-  creator: "Dhruv Makwana",
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
@@ -42,25 +41,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://github.com/A-941/arduino-robotics-journey",
-    title: "Dhruv Makwana | Arduino & Robotics Learning Journey",
+    url: "https://robotics-portfolio-website.vercel.app",
+    title: "Robotics & Arduino Learning Lab | Real Circuits, Real Code",
     description:
-      "A complete technical chronicle of embedded engineering from first principles to autonomous robotics. Live breadboard demos and verified code.",
-    siteName: "Dhruv's Robotics Journey",
+      "A complete technical learning resource for embedded engineering and robotics from first principles. Verified schematics, working code, and video demos.",
+    siteName: "Robotics Learning Lab",
     images: [
       {
         url: "/images/banner.jpg",
         width: 1200,
         height: 630,
-        alt: "Dhruv's Arduino & Robotics Journey",
+        alt: "Robotics Learning Lab Banner",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dhruv Makwana | Arduino & Robotics Journey",
+    title: "Robotics & Arduino Learning Lab",
     description:
-      "2nd-year CS student documenting hardware and robotics from scratch. Verified breadboard schematics and C++ code.",
+      "Step-by-step hardware tutorials, verified breadboard schematics, and clean C++ firmware for beginners.",
     images: ["/images/banner.jpg"],
   },
 };
@@ -75,9 +74,9 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jetbrainsMono.variable} dark scroll-smooth`}
     >
-      <body className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-200 antialiased">
+      <body className="min-h-screen flex flex-col bg-[#08080c] text-zinc-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-200 antialiased overflow-x-hidden">
         <Navbar />
-        <main className="flex-grow">{children}</main>
+        <main className="flex-grow relative z-10">{children}</main>
         <Footer />
       </body>
     </html>

@@ -135,7 +135,7 @@ export const projectsData: Project[] = [
  * Note: Source code reconstructed for portfolio documentation.
  *       The original .ino file was not found on this system.
  * 
- * Author: Dhruv Makwana
+ * Hardware Lab: ECE & Robotics Learning Platform
  * Date:   September 2026
  */
 
@@ -299,7 +299,7 @@ void loop() {
  * Note: Source code reconstructed for portfolio documentation.
  *       The original .ino file was not found on this system.
  * 
- * Author: Dhruv Makwana
+ * Hardware Lab: ECE & Robotics Learning Platform
  * Date:   September 2026
  */
 
