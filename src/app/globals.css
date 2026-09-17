@@ -1,51 +1,144 @@
 @import "tailwindcss";
 
+/* =========================================
+   DESIGN TOKENS — Awwwards Visual Identity
+   ========================================= */
 :root {
-  --background: #09090b;
-  --foreground: #f4f4f5;
-  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --bg: #080808;
+  --surface: #0f0f0f;
+  --surface-2: #141414;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.15);
+
+  --text-primary: #f0f0f0;
+  --text-secondary: #888;
+  --text-subtle: #444;
+
+  --accent: #e8ff00;
+  --accent-dim: rgba(232, 255, 0, 0.12);
+  --accent-border: rgba(232, 255, 0, 0.3);
+
+  --font-sans: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), "Space Mono", ui-monospace, Menlo, monospace;
+}
+
+/* =========================================
+   BASE RESETS
+   ========================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter);
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
   overflow-x: hidden;
 }
 
-/* Custom Sleek Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* =========================================
+   CURSOR — Hide native on fine pointer
+   ========================================= */
+@media (pointer: fine) {
+  * { cursor: none !important; }
 }
 
-::-webkit-scrollbar-track {
-  background: #09090b;
+/* =========================================
+   SCROLLBAR — Minimal
+   ========================================= */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #333; }
+
+/* =========================================
+   TYPOGRAPHY UTILITIES
+   ========================================= */
+
+/* Display — oversized editorial headline */
+.display-xl {
+  font-size: clamp(3.5rem, 9vw, 9rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 4px;
+.display-lg {
+  font-size: clamp(2.5rem, 6vw, 6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+.display-md {
+  font-size: clamp(1.75rem, 3.5vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
 }
 
-/* Code block table styles */
+/* Label — micro metadata */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* =========================================
+   CODE BLOCKS
+   ========================================= */
 pre code {
   font-family: var(--font-mono);
 }
 
-/* Custom cursor: hide native cursor on desktop pointer devices */
-@media (pointer: fine) {
-  * {
-    cursor: none !important;
-  }
+/* =========================================
+   SELECTION
+   ========================================= */
+::selection {
+  background: var(--accent);
+  color: #000;
 }
 
-/* Smooth page scroll */
-html {
-  scroll-behavior: smooth;
+/* =========================================
+   ACCENT LINE — horizontal rule
+   ========================================= */
+.accent-line {
+  height: 1px;
+  background: var(--accent);
+  width: 40px;
+}
+
+/* =========================================
+   GHOST NUMBER — large background text
+   ========================================= */
+.ghost-number {
+  font-family: var(--font-mono);
+  font-size: clamp(6rem, 16vw, 14rem);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.025);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* =========================================
+   IMAGE HOVER SCALE
+   ========================================= */
+.img-scale {
+  overflow: hidden;
+}
+.img-scale img {
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.img-scale:hover img {
+  transform: scale(1.04);
 }

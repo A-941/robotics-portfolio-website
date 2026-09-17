@@ -1,292 +1,549 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "motion/react";
-import {
-  ArrowRight,
-  Cpu,
-  Sparkles,
-  CircuitBoard,
-  BookOpen,
-  ExternalLink,
-  ShieldCheck,
-  CheckCircle2,
-  Terminal,
-  Activity,
-  MessageSquare,
-  Mail,
-} from "lucide-react";
-import { GithubIcon } from "@/components/Icons";
+import { motion, useScroll, useTransform } from "motion/react";
 import { projectsData } from "@/data/projectsData";
-import { ProjectCard } from "@/components/ProjectCard";
 import { SkillsSection } from "@/components/SkillsSection";
 import { RoadmapSection } from "@/components/RoadmapSection";
-import { HeroOrbitalEffect } from "@/components/HeroOrbitalEffect";
-import { MagneticButton } from "@/components/MagneticButton";
 
-export default function HomePage() {
+/* =============================================
+   STAGGER REVEAL COMPONENT
+   ============================================= */
+const Reveal = ({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 32 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
+/* =============================================
+   SCROLL REVEAL (viewport)
+   ============================================= */
+const ScrollIn = ({
+  children,
+  delay = 0,
+  className = "",
+  direction = "up",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  direction?: "up" | "left" | "right";
+}) => {
+  const initial =
+    direction === "up" ? { opacity: 0, y: 40 } :
+    direction === "left" ? { opacity: 0, x: -40 } :
+    { opacity: 0, x: 40 };
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* 21st.dev Inspired Hero Section with Black-Hole Orbital Canvas */}
-      <section className="relative overflow-hidden pt-12 pb-24 md:pt-24 md:pb-36 border-b border-zinc-800/80 bg-[#07070a]">
-        {/* Interactive Gravitational Canvas & Orbital Particle Field */}
-        <HeroOrbitalEffect />
+    <motion.div
+      initial={initial}
+      whileInView={{ opacity: 1, y: 0, x: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.75, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
-        {/* Ambient atmospheric glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-cyan-500/10 blur-[140px] pointer-events-none rounded-full" />
-        <div className="absolute top-1/3 right-10 w-[350px] h-[350px] bg-indigo-500/10 blur-[130px] pointer-events-none rounded-full" />
+/* =============================================
+   PROJECT ROW — editorial alternating layout
+   ============================================= */
+const ProjectRow = ({
+  project,
+  index,
+}: {
+  project: (typeof projectsData)[0];
+  index: number;
+}) => {
+  const isEven = index % 2 === 0;
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const imageY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-            {/* Left Col: Hero Copy */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="lg:col-span-7 space-y-6 text-center lg:text-left"
+  return (
+    <article ref={ref} className="relative">
+      {/* Horizontal rule */}
+      <div
+        className="h-px w-full"
+        style={{ backgroundColor: "var(--border)" }}
+      />
+
+      <div
+        className={`grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-[520px] ${
+          isEven ? "" : "lg:flex-row-reverse"
+        }`}
+      >
+        {/* Image column */}
+        <motion.div
+          className={`relative overflow-hidden col-span-1 lg:col-span-7 ${
+            isEven ? "" : "lg:order-2"
+          }`}
+          style={{ minHeight: "360px" }}
+        >
+          {/* Ghost number */}
+          <div
+            className="ghost-number absolute select-none pointer-events-none z-0"
+            style={{
+              right: isEven ? "-0.02em" : "auto",
+              left: isEven ? "auto" : "-0.02em",
+              bottom: "-0.1em",
+              opacity: 0.03,
+              fontSize: "clamp(5rem, 14vw, 12rem)",
+            }}
+          >
+            {String(index + 1).padStart(2, "0")}
+          </div>
+
+          <motion.div
+            className="absolute inset-0 cursor-explore"
+            style={{ y: imageY }}
+          >
+            <Image
+              src={project.circuitBreadboardImage || project.thumbnail}
+              alt={project.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 58vw"
+            />
+            {/* Subtle overlay */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background: "linear-gradient(to bottom, rgba(8,8,8,0.15) 0%, rgba(8,8,8,0.5) 100%)",
+              }}
+            />
+          </motion.div>
+
+          {/* Hover reveal: VIEW label */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100"
+            whileHover={{ opacity: 1 }}
+            transition={{ duration: 0.25 }}
+          />
+        </motion.div>
+
+        {/* Text column */}
+        <ScrollIn
+          delay={0.1}
+          className={`col-span-1 lg:col-span-5 flex flex-col justify-between px-8 py-10 lg:px-12 lg:py-14 ${
+            isEven ? "lg:order-2" : "lg:order-1"
+          }`}
+        >
+          <div>
+            {/* Meta row */}
+            <div className="flex items-center gap-4 mb-8">
+              <span className="label" style={{ color: "var(--text-subtle)" }}>
+                {String(index + 1).padStart(2, "0")} / {String(projectsData.length).padStart(2, "0")}
+              </span>
+              <div className="h-px flex-1" style={{ backgroundColor: "var(--border)" }} />
+              <span className="label" style={{ color: "var(--text-subtle)" }}>
+                {project.date}
+              </span>
+            </div>
+
+            {/* Category */}
+            <p
+              className="label mb-3"
+              style={{ color: "var(--accent)" }}
             >
-              {/* Category Pill */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.1 }}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs sm:text-sm font-medium backdrop-blur-md shadow-sm"
-              >
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span>Open Educational Engineering Resource</span>
-              </motion.div>
+              {project.category}
+            </p>
 
-              {/* Headline */}
-              <motion.h1
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]"
-              >
-                Learn Arduino & Robotics from Scratch —{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-indigo-400">
-                  Real Circuits, Real Code, Real Explanations
-                </span>
-              </motion.h1>
+            {/* Title */}
+            <h2
+              className="display-md mb-6"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {project.title}
+            </h2>
 
-              {/* Mission Statement / Description */}
-              <motion.p
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="text-base sm:text-lg text-zinc-300 max-w-2xl leading-relaxed mx-auto lg:mx-0"
-              >
-                An open, first-principles learning hub for beginners in ECE, computer science, and robotics. Master microcontroller architecture, GPIO pin physics, Ohm's law, and sensor interfacing through fully tested breadboard builds without skipping the mathematics.
-              </motion.p>
+            {/* Description */}
+            <p
+              className="text-sm leading-relaxed mb-8"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {project.shortDescription}
+            </p>
 
-              {/* Micro feature pills */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs font-mono text-zinc-400 pt-1"
-              >
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  Tinkercad Breadboards
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 mb-10">
+              {project.tags.slice(0, 4).map((tag) => (
+                <span
+                  key={tag}
+                  className="label px-2.5 py-1.5 border"
+                  style={{
+                    color: "var(--text-subtle)",
+                    borderColor: "var(--border)",
+                  }}
+                >
+                  {tag}
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
-                  Verified C++ Firmware
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />
-                  Video Hardware Proofs
-                </span>
-              </motion.div>
+              ))}
+            </div>
+          </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-3"
+          {/* CTA */}
+          <div className="flex items-center gap-8">
+            <Link
+              href={`/projects/${project.id}`}
+              className="group flex items-center gap-3"
+            >
+              <motion.span
+                whileHover={{ x: 4 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="text-sm font-semibold"
+                style={{ color: "var(--text-primary)" }}
               >
-                <MagneticButton
-                  as="a"
+                View Tutorial
+              </motion.span>
+              <motion.span
+                whileHover={{ x: 6 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                style={{ color: "var(--accent)", fontSize: "1.1em" }}
+              >
+                →
+              </motion.span>
+            </Link>
+            <a
+              href={project.githubFolderUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="label transition-colors"
+              style={{ color: "var(--text-subtle)" }}
+            >
+              Source ↗
+            </a>
+          </div>
+        </ScrollIn>
+      </div>
+    </article>
+  );
+};
+
+/* =============================================
+   HOMEPAGE
+   ============================================= */
+export default function HomePage() {
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroY = useTransform(heroScroll, [0, 1], ["0%", "20%"]);
+  const heroOpacity = useTransform(heroScroll, [0, 0.7], [1, 0]);
+
+  return (
+    <div
+      className="flex flex-col"
+      style={{ backgroundColor: "var(--bg)" }}
+    >
+      {/* ============= HERO ============= */}
+      <section
+        ref={heroRef}
+        className="relative min-h-screen flex flex-col justify-end overflow-hidden"
+        style={{ paddingBottom: "10vh" }}
+      >
+        {/* Subtle grid background */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Top-right metadata block */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.8, duration: 0.6 }}
+          className="absolute top-20 right-6 sm:right-10 lg:right-14 flex flex-col items-end gap-1"
+          aria-hidden="true"
+        >
+          <span className="label" style={{ color: "var(--text-subtle)" }}>ECE / Embedded</span>
+          <span className="label" style={{ color: "var(--text-subtle)" }}>Est. 2026</span>
+          <span className="label flex items-center gap-1.5" style={{ color: "var(--text-subtle)" }}>
+            <span
+              className="w-1.5 h-1.5 rounded-full inline-block"
+              style={{ backgroundColor: "#4ade80", animation: "pulse 2s infinite" }}
+            />
+            Open Source
+          </span>
+        </motion.div>
+
+        {/* Accent dot — decorative */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.2, duration: 0.5, ease: "backOut" }}
+          className="absolute w-2 h-2 rounded-full"
+          style={{
+            backgroundColor: "#e8ff00",
+            top: "50%",
+            left: "6px",
+            transform: "translateY(-50%)",
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Main hero content */}
+        <motion.div
+          style={{ y: heroY, opacity: heroOpacity }}
+          className="relative px-6 sm:px-10 lg:px-14 z-10"
+        >
+          {/* Overline label */}
+          <Reveal delay={0.4}>
+            <p className="label mb-6 sm:mb-8" style={{ color: "var(--text-subtle)" }}>
+              Open Educational Resource — Arduino &amp; Embedded Systems
+            </p>
+          </Reveal>
+
+          {/* Display headline — editorial, left-aligned */}
+          <div className="overflow-hidden mb-2">
+            <Reveal delay={0.7}>
+              <h1
+                className="display-xl"
+                style={{
+                  color: "var(--text-primary)",
+                  maxWidth: "16ch",
+                }}
+              >
+                Hardware,
+              </h1>
+            </Reveal>
+          </div>
+          <div className="overflow-hidden mb-8 sm:mb-12">
+            <Reveal delay={0.9}>
+              <h1
+                className="display-xl pl-[12vw] sm:pl-[18vw]"
+                style={{
+                  color: "var(--accent)",
+                  maxWidth: "100%",
+                }}
+              >
+                From First Principles.
+              </h1>
+            </Reveal>
+          </div>
+
+          {/* Supporting text + CTA in a row */}
+          <Reveal delay={1.4}>
+            <div className="flex flex-col sm:flex-row sm:items-end gap-8 sm:gap-16 max-w-4xl">
+              <p
+                className="text-sm sm:text-base leading-relaxed max-w-sm"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                An open, first-principles learning hub. Real breadboards, verified firmware, 
+                exact resistor math — without skipping steps.
+              </p>
+
+              <div className="flex flex-col gap-4 sm:gap-3 shrink-0">
+                <a
                   href="#projects"
-                  strength={35}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white shadow-lg shadow-cyan-500/25 transition-all"
+                  className="flex items-center gap-3 group"
                 >
-                  <BookOpen className="w-4 h-4" />
-                  Explore Tutorials
-                  <ArrowRight className="w-4 h-4" />
-                </MagneticButton>
+                  <motion.div
+                    className="w-10 h-10 rounded-full border flex items-center justify-center shrink-0"
+                    style={{ borderColor: "var(--accent)" }}
+                    whileHover={{ scale: 1.1, backgroundColor: "var(--accent)" }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <span style={{ color: "#000", fontSize: "1rem" }}>↓</span>
+                  </motion.div>
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    Explore tutorials
+                  </span>
+                </a>
 
-                <MagneticButton
-                  as="a"
-                  href="/about"
-                  strength={25}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-700/80 transition-all hover:border-zinc-500"
-                >
-                  Resource Guide &amp; Philosophy
-                </MagneticButton>
-
-                <motion.a
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                <a
                   href="https://github.com/A-941/arduino-robotics-journey"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-3 rounded-xl font-medium text-sm text-zinc-400 hover:text-white transition-colors"
+                  className="flex items-center gap-3"
                 >
-                  <GithubIcon className="w-4 h-4" />
-                  <span>GitHub Repository</span>
-                  <ExternalLink className="w-3 h-3" />
-                </motion.a>
-              </motion.div>
-            </motion.div>
-
-            {/* Right Col: Interactive Hardware Telemetry & Banner Display */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              className="lg:col-span-5 flex justify-center"
-            >
-              <div className="relative w-full max-w-md rounded-2xl border border-zinc-800/90 bg-zinc-900/60 p-4 sm:p-5 backdrop-blur-xl shadow-2xl shadow-cyan-500/10 group">
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800">
-                  <Image
-                    src="/images/banner.jpg"
-                    alt="Arduino & Robotics Educational Workbench"
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/20 to-transparent" />
-
-                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-zinc-950/90 border border-zinc-800/80 backdrop-blur-md">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-mono text-cyan-300 font-semibold flex items-center gap-1.5">
-                        <Activity className="w-3.5 h-3.5 text-cyan-400" />
-                        Microcontroller Workbench
-                      </span>
-                      <span className="text-zinc-400 font-mono text-[11px]">ATmega328P</span>
-                    </div>
-                    <p className="text-[11px] text-zinc-300 mt-1 font-mono">
-                      16 MHz • 5V Digital Logic • 14 GPIO Pins • PWM Timers
-                    </p>
+                  <div
+                    className="w-10 h-10 rounded-full border flex items-center justify-center shrink-0"
+                    style={{ borderColor: "var(--border)" }}
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                    </svg>
                   </div>
-                </div>
-
-                {/* Educational Verification Metrics */}
-                <div className="mt-4 grid grid-cols-2 gap-3 text-center">
-                  <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
-                    <div className="text-2xl font-extrabold text-white">2 Modules</div>
-                    <div className="text-[11px] text-zinc-400 mt-0.5">Complete Tutorials</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
-                    <div className="text-2xl font-extrabold text-cyan-400">100% Verified</div>
-                    <div className="text-[11px] text-zinc-400 mt-0.5">Physical Circuit Runs</div>
-                  </div>
-                </div>
+                  <span
+                    className="text-sm"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    View source
+                  </span>
+                </a>
               </div>
-            </motion.div>
+            </div>
+          </Reveal>
+        </motion.div>
+
+        {/* Bottom scroll indicator */}
+        <Reveal delay={2.0}>
+          <div
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            aria-hidden="true"
+          >
+            <span className="label" style={{ color: "var(--text-subtle)" }}>
+              Scroll to explore
+            </span>
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              className="w-px h-10"
+              style={{ backgroundColor: "var(--text-subtle)" }}
+            />
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      {/* Projects / Tutorials Section */}
-      <section id="projects" className="py-20 sm:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-14 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 mb-3 inline-block">
-              Interactive Lab Modules
-            </span>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Hands-On Hardware Tutorials
-            </h2>
-            <p className="text-zinc-400 text-sm sm:text-base mt-3 max-w-xl leading-relaxed">
-              Every project includes realistic breadboard schematics, line-by-line firmware explanations, physical video runs, and practical troubleshooting advice.
-            </p>
-          </motion.div>
+      {/* ============= SELECTED WORK ============= */}
+      <section id="projects">
+        {/* Section header */}
+        <div
+          className="px-6 sm:px-10 lg:px-14 py-16 flex items-end justify-between border-b"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <ScrollIn>
+            <div className="flex flex-col gap-2">
+              <p className="label" style={{ color: "var(--text-subtle)" }}>
+                Selected Work
+              </p>
+              <h2
+                className="display-md"
+                style={{ color: "var(--text-primary)" }}
+              >
+                Lab Modules
+              </h2>
+            </div>
+          </ScrollIn>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-xs text-zinc-400 font-mono flex items-center gap-2 self-start sm:self-end bg-zinc-900/80 px-3 py-2 rounded-lg border border-zinc-800"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            Scalable curriculum — new builds regularly added
-          </motion.div>
+          <ScrollIn delay={0.15} direction="right">
+            <p
+              className="label hidden sm:block text-right"
+              style={{ color: "var(--text-subtle)" }}
+            >
+              {projectsData.length} Active Tutorials
+              <br />
+              100% Verified Hardware
+            </p>
+          </ScrollIn>
         </div>
 
-        {/* Scalable Project Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+        {/* Project rows */}
+        <div>
           {projectsData.map((project, idx) => (
-            <ProjectCard key={project.id} project={project} index={idx} />
+            <ProjectRow key={project.id} project={project} index={idx} />
           ))}
         </div>
+
+        {/* Final rule */}
+        <div className="h-px" style={{ backgroundColor: "var(--border)" }} />
       </section>
 
-      {/* Curriculum & Foundations Section */}
+      {/* ============= CURRICULUM ============= */}
       <SkillsSection />
 
-      {/* Curriculum Sequence Roadmap Section */}
+      {/* ============= ROADMAP ============= */}
       <RoadmapSection />
 
-      {/* Contact CTA Banner */}
-      <section className="relative py-20 sm:py-28 border-t border-zinc-800/60 bg-gradient-to-b from-zinc-950 to-[#07070a] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-indigo-500/5 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[200px] bg-cyan-500/6 blur-[100px] pointer-events-none rounded-full" />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="space-y-6"
-          >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
-              <MessageSquare className="w-3.5 h-3.5" />
-              Let's Build Together
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-              Questions, Feedback, or{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">
-                Collaboration?
-              </span>
-            </h2>
-            <p className="text-zinc-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
-              Found a circuit error, want to contribute a tutorial, or just learning and curious about something? Reach out — we'd love to hear from you.
+      {/* ============= CONTACT CTA ============= */}
+      <section
+        className="relative px-6 sm:px-10 lg:px-14 py-32 sm:py-40 overflow-hidden"
+        style={{ borderTop: "1px solid var(--border)" }}
+      >
+        {/* Ghost text background */}
+        <div
+          className="ghost-number absolute bottom-0 right-0 leading-none select-none pointer-events-none"
+          aria-hidden="true"
+          style={{ opacity: 0.025 }}
+        >
+          ↗
+        </div>
+
+        <ScrollIn>
+          <div className="max-w-3xl">
+            <p className="label mb-6" style={{ color: "var(--text-subtle)" }}>
+              Get in touch
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-              <MagneticButton
-                as="a"
+            <h2
+              className="display-lg mb-8"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Questions, feedback,
+              <br />
+              or collaboration?
+            </h2>
+            <p
+              className="text-sm sm:text-base leading-relaxed mb-12 max-w-md"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Found a circuit error? Want to contribute a module? Just curious?
+              Reach out — this is an open resource built for learners.
+            </p>
+            <div className="flex flex-wrap items-center gap-6">
+              <Link
                 href="/contact"
-                strength={32}
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white shadow-lg shadow-cyan-500/20 transition-all"
+                className="inline-flex items-center gap-3 group"
               >
-                <Mail className="w-4 h-4" />
-                Get In Touch
-              </MagneticButton>
-              <MagneticButton
-                as="a"
+                <motion.div
+                  className="px-6 py-3 font-semibold text-sm"
+                  style={{
+                    backgroundColor: "#e8ff00",
+                    color: "#000",
+                  }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  Get in touch →
+                </motion.div>
+              </Link>
+              <a
                 href="https://github.com/A-941/arduino-robotics-journey"
                 target="_blank"
                 rel="noopener noreferrer"
-                strength={25}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium text-sm bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-700/80 transition-all hover:border-zinc-500"
+                className="text-sm font-medium transition-colors"
+                style={{ color: "var(--text-secondary)" }}
               >
-                <GithubIcon className="w-4 h-4 text-cyan-400" />
-                Contribute on GitHub
-                <ExternalLink className="w-3 h-3 text-zinc-500" />
-              </MagneticButton>
+                Contribute on GitHub ↗
+              </a>
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </ScrollIn>
       </section>
     </div>
   );

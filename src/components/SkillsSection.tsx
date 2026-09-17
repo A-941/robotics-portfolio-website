@@ -2,78 +2,99 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Cpu, Code2, Zap, CheckCircle2, Layers } from "lucide-react";
 import { skillsList } from "@/data/projectsData";
 
 export const SkillsSection = () => {
-  const getCategoryIcon = (category: string) => {
-    if (category.includes("Embedded")) return <Cpu className="w-5 h-5 text-cyan-400" />;
-    if (category.includes("Software")) return <Code2 className="w-5 h-5 text-indigo-400" />;
-    return <Zap className="w-5 h-5 text-amber-400" />;
-  };
-
   return (
-    <section id="skills" className="py-20 sm:py-28 border-t border-zinc-800/80 bg-gradient-to-b from-[#08080c] via-zinc-950/40 to-[#08080c] relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="skills"
+      className="relative py-24 sm:py-32"
+      style={{ borderTop: "1px solid var(--border)" }}
+    >
+      <div className="px-6 sm:px-10 lg:px-14">
+        {/* Section header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center text-center mb-16"
+          transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 mb-16 sm:mb-20"
         >
-          <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 mb-4 flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5" />
-            Curriculum & Foundations
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Core Engineering Competencies
-          </h2>
-          <p className="mt-4 text-zinc-400 text-sm sm:text-base max-w-2xl leading-relaxed">
-            Essential embedded systems, circuit theory, and physical prototyping skills taught through hands-on breadboard builds and verified firmware.
+          <div>
+            <p className="label mb-4" style={{ color: "var(--accent)" }}>
+              Curriculum
+            </p>
+            <h2
+              className="display-md"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Core Competencies
+            </h2>
+          </div>
+          <p
+            className="text-sm max-w-xs leading-relaxed"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Engineering foundations taught through hands-on breadboard builds
+            and verified firmware.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          {skillsList.map((skillGroup, idx) => (
+        {/* Skills as editorial list — each category is a row */}
+        <div className="space-y-0">
+          {skillsList.map((group, gIdx) => (
             <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 30 }}
+              key={gIdx}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.15 }}
-              whileHover={{ y: -4 }}
-              className="rounded-2xl border border-zinc-800/90 bg-zinc-900/40 p-7 backdrop-blur-md hover:border-cyan-500/40 transition-colors flex flex-col shadow-lg shadow-black/40"
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.6, delay: gIdx * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="border-b"
+              style={{ borderColor: "var(--border)" }}
             >
-              <div className="flex items-center gap-3 pb-4 mb-5 border-b border-zinc-800/80">
-                <div className="p-2 rounded-xl bg-zinc-950 border border-zinc-800">
-                  {getCategoryIcon(skillGroup.category)}
+              <div className="py-8 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-0">
+                {/* Category name */}
+                <div className="md:col-span-3 flex items-start gap-4">
+                  <span
+                    className="label mt-0.5"
+                    style={{ color: "var(--text-subtle)", minWidth: "2ch" }}
+                  >
+                    {String(gIdx + 1).padStart(2, "0")}
+                  </span>
+                  <span
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    {group.category}
+                  </span>
                 </div>
-                <h3 className="text-lg font-bold text-zinc-100">
-                  {skillGroup.category}
-                </h3>
-              </div>
 
-              <ul className="space-y-4 flex-grow">
-                {skillGroup.items.map((item, itemIdx) => (
-                  <li key={itemIdx} className="group">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                        <span className="text-sm font-semibold text-zinc-200 group-hover:text-cyan-300 transition-colors">
-                          {item.name}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-800/80 border border-zinc-700/60 text-zinc-400 shrink-0">
+                {/* Skills tags */}
+                <div className="md:col-span-9 flex flex-wrap gap-3">
+                  {group.items.map((item, iIdx) => (
+                    <motion.div
+                      key={iIdx}
+                      whileHover={{ borderColor: "#e8ff00" }}
+                      transition={{ duration: 0.15 }}
+                      className="flex items-center gap-3 border px-4 py-2.5"
+                      style={{ borderColor: "var(--border)" }}
+                    >
+                      <span
+                        className="text-xs font-medium"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {item.name}
+                      </span>
+                      <span
+                        className="label"
+                        style={{ color: "var(--text-subtle)" }}
+                      >
                         {item.level}
                       </span>
-                    </div>
-                    <p className="text-xs text-zinc-400 pl-6 leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </li>
-                ))}
-              </ul>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>

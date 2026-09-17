@@ -56,51 +56,60 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const nextProject = projectsData[(currentIndex + 1) % projectsData.length];
 
   return (
-    <div className="min-h-screen py-10 sm:py-16">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
-        {/* Breadcrumb & Navigation */}
-        <div className="flex items-center justify-between gap-4 border-b border-zinc-800 pb-4 text-xs sm:text-sm text-zinc-400">
+    <div className="min-h-screen pt-24 pb-20" style={{ backgroundColor: "var(--bg)" }}>
+      <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:px-14 space-y-14">
+        {/* Breadcrumb */}
+        <div className="flex items-center justify-between gap-4 pb-4 border-b" style={{ borderColor: "var(--border)" }}>
           <Link
             href="/#projects"
-            className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+            className="label transition-colors hover:text-white"
+            style={{ color: "var(--text-subtle)" }}
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to All Projects
+            ← All Tutorials
           </Link>
-
-          <div className="flex items-center gap-2 font-mono text-xs">
-            <span className="text-zinc-500">Projects</span>
-            <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
-            <span className="text-zinc-300">{project.badge}</span>
-          </div>
+          <span className="label" style={{ color: "var(--text-subtle)" }}>
+            {project.badge}
+          </span>
         </div>
 
         {/* Project Header */}
         <ScrollReveal>
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+        <div className="space-y-5">
+          <div className="flex flex-wrap items-center gap-3">
+            <span
+              className="label px-3 py-1.5 border"
+              style={{ color: "var(--accent)", borderColor: "var(--accent-border)" }}
+            >
               {project.badge}
             </span>
-            <span className="text-xs text-zinc-400">•</span>
-            <span className="text-xs text-zinc-400">{project.category}</span>
-            <span className="text-xs text-zinc-400">•</span>
-            <span className="text-xs text-zinc-500">{project.date}</span>
+            <span className="label" style={{ color: "var(--text-subtle)" }}>
+              {project.category}
+            </span>
+            <span className="label" style={{ color: "var(--text-subtle)" }}>
+              {project.date}
+            </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+          <h1
+            className="display-md"
+            style={{ color: "var(--text-primary)" }}
+          >
             {project.title}
           </h1>
 
-          <p className="text-base sm:text-lg text-zinc-300 leading-relaxed max-w-3xl">
+          <p
+            className="text-base leading-relaxed max-w-3xl"
+            style={{ color: "var(--text-secondary)" }}
+          >
             {project.fullDescription}
           </p>
 
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-1">
             {project.tags.map((tag, idx) => (
               <span
                 key={idx}
-                className="px-3 py-1 rounded-md text-xs font-medium bg-zinc-900 border border-zinc-800 text-zinc-300"
+                className="label px-3 py-1.5 border"
+                style={{ color: "var(--text-subtle)", borderColor: "var(--border)" }}
               >
                 {tag}
               </span>
@@ -111,27 +120,27 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         {/* Section 1: Components Used */}
         <ScrollReveal delay={0.05}>
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 backdrop-blur-sm">
-          <div className="flex items-center gap-2.5 mb-6 pb-3 border-b border-zinc-800/80">
-            <Layers className="w-5 h-5 text-cyan-400" />
-            <h2 className="text-xl font-bold text-white">Bill of Materials &amp; Components</h2>
+        <section className="border-t pt-10 space-y-6" style={{ borderColor: "var(--border)" }}>
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>Bill of Materials</h2>
+            <span className="label" style={{ color: "var(--text-subtle)" }}>Components</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-xs text-zinc-400 uppercase bg-zinc-950/60 border-b border-zinc-800">
+              <thead className="border-b" style={{ borderColor: "var(--border)" }}>
                 <tr>
-                  <th className="py-3 px-4 rounded-l-lg">Component</th>
-                  <th className="py-3 px-4">Qty</th>
-                  <th className="py-3 px-4 rounded-r-lg">Circuit Role / Specification</th>
+                  <th className="py-3 label" style={{ color: "var(--text-subtle)" }}>Component</th>
+                  <th className="py-3 px-4 label" style={{ color: "var(--text-subtle)" }}>Qty</th>
+                  <th className="py-3 label" style={{ color: "var(--text-subtle)" }}>Role</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800/60">
+              <tbody>
                 {project.components.map((comp, idx) => (
-                  <tr key={idx} className="hover:bg-zinc-800/30 transition-colors">
-                    <td className="py-3.5 px-4 font-semibold text-zinc-200">{comp.name}</td>
-                    <td className="py-3.5 px-4 font-mono text-cyan-400 font-medium">{comp.quantity}</td>
-                    <td className="py-3.5 px-4 text-zinc-400">{comp.purpose}</td>
+                  <tr key={idx} className="border-b" style={{ borderColor: "var(--border)" }}>
+                    <td className="py-3.5 text-sm font-medium" style={{ color: "var(--text-primary)" }}>{comp.name}</td>
+                    <td className="py-3.5 px-4 label" style={{ color: "var(--accent)", fontFamily: "var(--font-space-mono)" }}>{comp.quantity}</td>
+                    <td className="py-3.5 text-sm" style={{ color: "var(--text-secondary)" }}>{comp.purpose}</td>
                   </tr>
                 ))}
               </tbody>
@@ -140,22 +149,22 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </section>
         </ScrollReveal>
 
-        {/* Section 2: Colorful Breadboard Circuit Diagram */}
+        {/* Section 2: Breadboard Layout */}
         <ScrollReveal delay={0.08}>
-        <section className="space-y-4">
-          <div className="flex items-center gap-2.5 pb-2">
-            <Cpu className="w-5 h-5 text-cyan-400" />
-            <h2 className="text-xl sm:text-2xl font-bold text-white">Physical Breadboard Layout</h2>
+        <section className="border-t pt-10 space-y-4" style={{ borderColor: "var(--border)" }}>
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>Physical Breadboard Layout</h2>
+            <span className="label" style={{ color: "var(--text-subtle)" }}>Tinkercad</span>
           </div>
-          <p className="text-sm text-zinc-400">
-            Rendered in full-color Tinkercad visual style. Shows the physical breadboard orientation, jumper wire paths, and pin connections. Click the image to view in high resolution.
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            Full-color Tinkercad visual style. Shows physical breadboard orientation, jumper wire paths, and pin connections. Click to view in full resolution.
           </p>
 
           <CircuitViewer
             breadboardImage={project.circuitBreadboardImage}
             schematicImage={project.circuitImage}
             title={project.title}
-            caption={`Tinkercad-style physical layout for ${project.title}. Red/colored wires represent digital pin signals, black wires represent GND return paths.`}
+            caption={`Tinkercad-style physical layout for ${project.title}. Red/colored wires = digital pin signals, black = GND return paths.`}
           />
         </section>
         </ScrollReveal>

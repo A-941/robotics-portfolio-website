@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -7,20 +7,22 @@ import { ScrollProgressBar } from "@/components/ScrollProgressBar";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { CustomCursor } from "@/components/CustomCursor";
 
-const inter = Inter({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-space-grotesk",
   display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const spaceMono = Space_Mono({
   subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-space-mono",
   display: "swap",
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://robotics-portfolio-website.vercel.app"),
+  metadataBase: new URL("https://robotics-portfolio-website-kohl.vercel.app"),
   title: "Robotics & Arduino Learning Lab | Real Circuits, Real Code, Real Explanations",
   description:
     "An open-source educational resource for beginners in ECE and robotics. Step-by-step breadboard diagrams, verified C++ firmware, and physical hardware demos from first principles.",
@@ -44,45 +46,33 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://robotics-portfolio-website.vercel.app",
-    title: "Robotics & Arduino Learning Lab | Real Circuits, Real Code",
+    url: "https://robotics-portfolio-website-kohl.vercel.app",
+    title: "Robotics & Arduino Learning Lab",
     description:
-      "A complete technical learning resource for embedded engineering and robotics from first principles. Verified schematics, working code, and video demos.",
+      "A complete technical learning resource for embedded engineering and robotics from first principles.",
     siteName: "Robotics Learning Lab",
-    images: [
-      {
-        url: "/images/banner.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Robotics Learning Lab Banner",
-      },
-    ],
+    images: [{ url: "/images/banner.jpg", width: 1200, height: 630, alt: "Robotics Learning Lab" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Robotics & Arduino Learning Lab",
-    description:
-      "Step-by-step hardware tutorials, verified breadboard schematics, and clean C++ firmware for beginners.",
+    description: "Step-by-step hardware tutorials, verified breadboard schematics, and clean C++ firmware.",
     images: ["/images/banner.jpg"],
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} dark scroll-smooth`}
+      className={`${spaceGrotesk.variable} ${spaceMono.variable}`}
     >
-      <body className="min-h-screen flex flex-col bg-[#08080c] text-zinc-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-200 antialiased overflow-x-hidden">
+      <body className="min-h-screen flex flex-col overflow-x-hidden antialiased">
         <LoadingScreen />
         <CustomCursor />
         <ScrollProgressBar />
         <Navbar />
-        <main className="flex-grow relative z-10">{children}</main>
+        <main className="flex-grow relative">{children}</main>
         <Footer />
       </body>
     </html>

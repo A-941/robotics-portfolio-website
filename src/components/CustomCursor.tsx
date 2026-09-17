@@ -1,77 +1,85 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+
+type CursorLabel = "" | "EXPLORE" | "OPEN" | "VIEW" | "READ";
 
 export const CustomCursor = () => {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const cursorDotRef = useRef<HTMLDivElement>(null);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isClicking, setIsClicking] = useState(false);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const [label, setLabel] = useState<CursorLabel>("");
   const [isVisible, setIsVisible] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
-    // Only show on non-touch devices
-    if (typeof window === "undefined" || window.matchMedia("(pointer: coarse)").matches) return;
-
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced) return;
+    if (typeof window === "undefined") return;
+    // Only on fine pointer (mouse) devices
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     setIsVisible(true);
 
     let rafId: number;
-    let mouseX = 0, mouseY = 0;
-    let curX = 0, curY = 0;
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
 
     const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-
-      // Dot follows exactly
-      if (cursorDotRef.current) {
-        cursorDotRef.current.style.transform = `translate(${e.clientX - 4}px, ${e.clientY - 4}px)`;
-      }
+      targetX = e.clientX;
+      targetY = e.clientY;
     };
 
-    // Smooth laggy cursor (outer ring)
-    const animate = () => {
-      curX += (mouseX - curX) * 0.12;
-      curY += (mouseY - curY) * 0.12;
-
-      if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate(${curX - 20}px, ${curY - 20}px)`;
+    const loop = () => {
+      currentX += (targetX - currentX) * 0.1;
+      currentY += (targetY - currentY) * 0.1;
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate(${currentX}px, ${currentY}px) translate(-50%, -50%)`;
       }
-      rafId = requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(loop);
     };
-
-    // Hover detection
-    const onMouseEnterInteractive = () => setIsHovering(true);
-    const onMouseLeaveInteractive = () => setIsHovering(false);
-    const onMouseDown = () => setIsClicking(true);
-    const onMouseUp = () => setIsClicking(false);
 
     const attachListeners = () => {
-      document.querySelectorAll("a, button, [role='button'], label, input, textarea, select").forEach((el) => {
-        el.addEventListener("mouseenter", onMouseEnterInteractive);
-        el.addEventListener("mouseleave", onMouseLeaveInteractive);
+      document.querySelectorAll("a[href], button, [role='button']").forEach((el) => {
+        const href = (el as HTMLAnchorElement).href || "";
+        const text = (el as HTMLElement).innerText?.toLowerCase() || "";
+        const ariLabel = (el as HTMLElement).getAttribute("aria-label")?.toLowerCase() || "";
+
+        let cursorLabel: CursorLabel = "OPEN";
+        if (href.includes("github") || href.includes("projects") || text.includes("tutorial") || text.includes("explore")) {
+          cursorLabel = "EXPLORE";
+        } else if (href.includes("about") || href.includes("guide") || text.includes("read") || text.includes("guide")) {
+          cursorLabel = "READ";
+        } else if (href.includes("contact") || text.includes("contact") || text.includes("message")) {
+          cursorLabel = "OPEN";
+        } else if ((el as HTMLElement).tagName === "BUTTON") {
+          cursorLabel = "OPEN";
+        }
+
+        el.addEventListener("mouseenter", () => {
+          setIsHovering(true);
+          setLabel(cursorLabel);
+        });
+        el.addEventListener("mouseleave", () => {
+          setIsHovering(false);
+          setLabel("");
+        });
+      });
+
+      // Also handle images/cards
+      document.querySelectorAll(".cursor-explore").forEach((el) => {
+        el.addEventListener("mouseenter", () => { setIsHovering(true); setLabel("EXPLORE"); });
+        el.addEventListener("mouseleave", () => { setIsHovering(false); setLabel(""); });
       });
     };
 
-    attachListeners();
-    // Re-attach on DOM changes (route navigations in Next.js)
     const observer = new MutationObserver(attachListeners);
     observer.observe(document.body, { childList: true, subtree: true });
+    attachListeners();
 
     window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mouseup", onMouseUp);
-
-    rafId = requestAnimationFrame(animate);
+    rafId = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mouseup", onMouseUp);
       observer.disconnect();
     };
   }, []);
@@ -79,40 +87,38 @@ export const CustomCursor = () => {
   if (!isVisible) return null;
 
   return (
-    <>
-      {/* Outer glow ring — smooth, laggy */}
-      <div
-        ref={cursorRef}
-        aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 z-[9999] will-change-transform"
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: "50%",
-          border: `1.5px solid ${isHovering ? "rgba(6,182,212,0.7)" : "rgba(255,255,255,0.2)"}`,
-          boxShadow: isHovering
-            ? "0 0 18px 4px rgba(6,182,212,0.35)"
-            : "0 0 8px 1px rgba(255,255,255,0.06)",
-          transition: "border-color 0.2s, box-shadow 0.2s, width 0.2s, height 0.2s",
-          backgroundColor: isClicking ? "rgba(6,182,212,0.08)" : "transparent",
-          transform: isHovering ? "scale(1.5)" : "scale(1)",
-        }}
-      />
-      {/* Inner dot — snappy */}
-      <div
-        ref={cursorDotRef}
-        aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 z-[9999] will-change-transform"
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: "50%",
-          backgroundColor: isHovering ? "#06b6d4" : "rgba(255,255,255,0.8)",
-          boxShadow: isHovering ? "0 0 8px 3px rgba(6,182,212,0.6)" : "none",
-          transition: "background-color 0.15s, box-shadow 0.15s",
-          scale: isClicking ? "0.6" : "1",
-        }}
-      />
-    </>
+    <div
+      ref={ringRef}
+      aria-hidden="true"
+      className="pointer-events-none fixed top-0 left-0 z-[9999] will-change-transform"
+      style={{
+        width: isHovering ? 72 : 20,
+        height: isHovering ? 72 : 20,
+        borderRadius: "50%",
+        border: `1px solid ${isHovering ? "#e8ff00" : "rgba(255,255,255,0.35)"}`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "width 0.3s cubic-bezier(0.25,0.46,0.45,0.94), height 0.3s cubic-bezier(0.25,0.46,0.45,0.94), border-color 0.2s",
+        backgroundColor: isHovering ? "rgba(232,255,0,0.06)" : "transparent",
+      }}
+    >
+      {label && (
+        <span
+          style={{
+            fontSize: "8px",
+            letterSpacing: "0.1em",
+            fontFamily: "var(--font-space-mono)",
+            color: "#e8ff00",
+            fontWeight: 700,
+            opacity: isHovering ? 1 : 0,
+            transition: "opacity 0.2s",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {label}
+        </span>
+      )}
+    </div>
   );
 };

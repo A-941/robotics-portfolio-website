@@ -2,98 +2,171 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { CheckCircle2, Clock, Compass } from "lucide-react";
 import { roadmapMilestones } from "@/data/projectsData";
+
+const STATUS_COLOR: Record<string, string> = {
+  completed: "#4ade80",
+  "in-progress": "#e8ff00",
+  upcoming: "#333",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  completed: "Completed",
+  "in-progress": "In Progress",
+  upcoming: "Upcoming",
+};
 
 export const RoadmapSection = () => {
   return (
-    <section id="roadmap" className="py-20 sm:py-28 border-t border-zinc-800/80 bg-zinc-950/70 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="roadmap"
+      className="relative py-24 sm:py-32"
+      style={{ borderTop: "1px solid var(--border)" }}
+    >
+      <div className="px-6 sm:px-10 lg:px-14">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center text-center mb-16"
+          transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="mb-16 sm:mb-20"
         >
-          <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 mb-4 flex items-center gap-1.5">
-            <Compass className="w-3.5 h-3.5" />
+          <p className="label mb-4" style={{ color: "var(--text-subtle)" }}>
             Curriculum Sequence
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Robotics & Embedded AI Roadmap
-          </h2>
-          <p className="mt-4 text-zinc-400 text-sm sm:text-base max-w-2xl leading-relaxed">
-            A structured, step-by-step engineering progression from fundamental digital electronics to autonomous robotic agents.
           </p>
+          <h2
+            className="display-md max-w-lg"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Robotics & Embedded
+            <br />
+            AI Roadmap
+          </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {roadmapMilestones.map((phase, idx) => {
-            const isCompleted = phase.status === "completed";
-            const isInProgress = phase.status === "in-progress";
+        {/* Vertical timeline */}
+        <div className="relative">
+          {/* Vertical line */}
+          <div
+            className="absolute top-0 bottom-0 w-px hidden md:block"
+            style={{
+              left: "calc(25% - 0.5px)",
+              backgroundColor: "var(--border)",
+            }}
+            aria-hidden="true"
+          />
 
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.12 }}
-                whileHover={{ y: -4 }}
-                className={`relative rounded-2xl border p-6 flex flex-col transition-all duration-300 ${
-                  isCompleted
-                    ? "border-emerald-500/40 bg-emerald-950/15 shadow-lg shadow-emerald-500/5"
-                    : isInProgress
-                    ? "border-cyan-500/50 bg-cyan-950/20 shadow-xl shadow-cyan-500/10"
-                    : "border-zinc-800 bg-zinc-900/30 opacity-80 hover:opacity-100 hover:border-zinc-700"
-                }`}
-              >
-                {/* Header with status badge */}
-                <div className="flex items-center justify-between gap-2 mb-4">
-                  <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-                    Phase 0{idx + 1}
-                  </span>
-                  {isCompleted && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Completed
-                    </span>
-                  )}
-                  {isInProgress && (
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-cyan-300 bg-cyan-500/15 px-2.5 py-0.5 rounded-full border border-cyan-500/30">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-                      In Progress
-                    </span>
-                  )}
-                  {!isCompleted && !isInProgress && (
-                    <span className="inline-flex items-center text-[11px] font-medium text-zinc-400 bg-zinc-800/80 px-2.5 py-0.5 rounded-full border border-zinc-700/50">
-                      Upcoming
-                    </span>
-                  )}
-                </div>
+          <div className="space-y-0">
+            {roadmapMilestones.map((phase, idx) => {
+              const status = phase.status ?? "upcoming";
+              const accentColor = STATUS_COLOR[status] ?? "#333";
 
-                <h3 className="text-base font-bold text-zinc-100 mb-4 pb-3 border-b border-zinc-800/80">
-                  {phase.phase}
-                </h3>
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{
+                    duration: 0.65,
+                    delay: idx * 0.1,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                  }}
+                  className="relative border-b"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-12 py-10 gap-6 md:gap-0">
+                    {/* Phase label + status */}
+                    <div className="md:col-span-3 flex items-start gap-4 relative">
+                      {/* Timeline dot */}
+                      <div
+                        className="absolute w-3 h-3 rounded-full border-2 hidden md:block"
+                        style={{
+                          backgroundColor: accentColor === "#333" ? "var(--bg)" : accentColor,
+                          borderColor: accentColor,
+                          right: "-6px",
+                          top: "6px",
+                        }}
+                        aria-hidden="true"
+                      />
 
-                {/* Sub-projects */}
-                <ul className="space-y-3.5 flex-grow">
-                  {phase.projects.map((proj, pIdx) => (
-                    <li key={pIdx} className="space-y-1">
-                      <div className="text-xs sm:text-sm font-semibold text-zinc-200 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0"></span>
-                        {proj.title}
+                      <div className="flex flex-col gap-2">
+                        <span
+                          className="label"
+                          style={{ color: "var(--text-subtle)" }}
+                        >
+                          Phase {String(idx + 1).padStart(2, "0")}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ backgroundColor: accentColor }}
+                          />
+                          <span
+                            className="label"
+                            style={{ color: accentColor }}
+                          >
+                            {STATUS_LABEL[status]}
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-[11px] text-zinc-400 pl-3 leading-relaxed">
-                        {proj.desc}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            );
-          })}
+                    </div>
+
+                    {/* Content */}
+                    <div className="md:col-span-9 md:pl-14">
+                      <h3
+                        className="text-lg font-semibold mb-5"
+                        style={{
+                          color:
+                            status === "upcoming"
+                              ? "var(--text-subtle)"
+                              : "var(--text-primary)",
+                          letterSpacing: "-0.02em",
+                        }}
+                      >
+                        {phase.phase}
+                      </h3>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                        {phase.projects.map((proj, pIdx) => (
+                          <div key={pIdx} className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2.5">
+                              <div
+                                className="w-1 h-1 rounded-full shrink-0"
+                                style={{
+                                  backgroundColor:
+                                    status === "completed" ? "#4ade80" :
+                                    status === "in-progress" ? "#e8ff00" : "#333",
+                                }}
+                              />
+                              <span
+                                className="text-sm font-medium"
+                                style={{
+                                  color:
+                                    status === "upcoming"
+                                      ? "var(--text-subtle)"
+                                      : "var(--text-primary)",
+                                }}
+                              >
+                                {proj.title}
+                              </span>
+                            </div>
+                            <p
+                              className="text-xs leading-relaxed pl-[14px]"
+                              style={{ color: "var(--text-subtle)" }}
+                            >
+                              {proj.desc}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
