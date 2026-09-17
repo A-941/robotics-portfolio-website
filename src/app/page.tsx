@@ -202,7 +202,15 @@ const ProjectRow = ({
           </div>
 
           {/* CTA */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6 flex-wrap">
+            {/* Mission CTA — primary */}
+            <Link
+              href={`/missions/${project.id}`}
+              className="group inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold transition-transform active:scale-95"
+              style={{ backgroundColor: "var(--accent)", color: "#000" }}
+            >
+              Start Mission →
+            </Link>
             <Link
               href={`/projects/${project.id}`}
               className="group flex items-center gap-3"
@@ -210,17 +218,10 @@ const ProjectRow = ({
               <motion.span
                 whileHover={{ x: 4 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="text-sm font-semibold"
-                style={{ color: "var(--text-primary)" }}
+                className="text-sm"
+                style={{ color: "var(--text-subtle)" }}
               >
-                View Tutorial
-              </motion.span>
-              <motion.span
-                whileHover={{ x: 6 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                style={{ color: "var(--accent)", fontSize: "1.1em" }}
-              >
-                →
+                Reference docs →
               </motion.span>
             </Link>
             <a
@@ -315,7 +316,7 @@ export default function HomePage() {
           {/* Overline label */}
           <Reveal delay={0.4}>
             <p className="label mb-6 sm:mb-8" style={{ color: "var(--text-subtle)" }}>
-              Open Educational Resource — Arduino &amp; Embedded Systems
+              Interactive Skill Lab — Arduino &amp; Embedded Systems
             </p>
           </Reveal>
 
@@ -329,12 +330,12 @@ export default function HomePage() {
                   maxWidth: "16ch",
                 }}
               >
-                Hardware,
+                Don't just
               </h1>
             </Reveal>
           </div>
-          <div className="overflow-hidden mb-8 sm:mb-12">
-            <Reveal delay={0.9}>
+          <div className="overflow-hidden mb-2">
+            <Reveal delay={0.85}>
               <h1
                 className="display-xl pl-[12vw] sm:pl-[18vw]"
                 style={{
@@ -342,7 +343,20 @@ export default function HomePage() {
                   maxWidth: "100%",
                 }}
               >
-                From First Principles.
+                learn it.
+              </h1>
+            </Reveal>
+          </div>
+          <div className="overflow-hidden mb-8 sm:mb-12">
+            <Reveal delay={1.0}>
+              <h1
+                className="display-xl"
+                style={{
+                  color: "var(--text-primary)",
+                  maxWidth: "16ch",
+                }}
+              >
+                Build it.
               </h1>
             </Reveal>
           </div>
@@ -354,56 +368,47 @@ export default function HomePage() {
                 className="text-sm sm:text-base leading-relaxed max-w-sm"
                 style={{ color: "var(--text-secondary)" }}
               >
-                An open, first-principles learning hub. Real breadboards, verified firmware, 
-                exact resistor math — without skipping steps.
+                Complete guided challenges, debug real circuits, and prove what you know — without a teacher sitting beside you.
               </p>
 
               <div className="flex flex-col gap-4 sm:gap-3 shrink-0">
-                <a
-                  href="#projects"
+                {/* Primary CTA — Mission */}
+                <Link
+                  href="/missions/led-blink"
                   className="flex items-center gap-3 group"
                 >
                   <motion.div
-                    className="w-10 h-10 rounded-full border flex items-center justify-center shrink-0"
-                    style={{ borderColor: "var(--accent)" }}
-                    whileHover={{ scale: 1.1, backgroundColor: "var(--accent)" }}
+                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: "var(--accent)" }}
+                    whileHover={{ scale: 1.1 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <span style={{ color: "#000", fontSize: "1rem" }}>↓</span>
+                    <span style={{ color: "#000", fontSize: "1rem" }}>→</span>
                   </motion.div>
                   <span
-                    className="text-sm font-medium"
+                    className="text-sm font-bold"
                     style={{ color: "var(--text-primary)" }}
                   >
-                    Explore tutorials
+                    Start Mission 01
                   </span>
-                </a>
+                </Link>
 
+                {/* Secondary CTA — tutorials */}
                 <a
-                  href="https://github.com/A-941/arduino-robotics-journey"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#projects"
                   className="flex items-center gap-3"
                 >
                   <div
                     className="w-10 h-10 rounded-full border flex items-center justify-center shrink-0"
                     style={{ borderColor: "var(--border)" }}
                   >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                    </svg>
+                    <span style={{ color: "var(--text-subtle)", fontSize: "1rem" }}>↓</span>
                   </div>
                   <span
                     className="text-sm"
                     style={{ color: "var(--text-secondary)" }}
                   >
-                    View source
+                    Explore tutorials
                   </span>
                 </a>
               </div>
