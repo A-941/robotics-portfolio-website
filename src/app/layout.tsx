@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { ScrollProgressBar } from "@/components/ScrollProgressBar";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { CustomCursor } from "@/components/CustomCursor";
+import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -68,12 +69,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${spaceGrotesk.variable} ${spaceMono.variable}`}
     >
       <body className="min-h-screen flex flex-col overflow-x-hidden antialiased">
-        <LoadingScreen />
-        <CustomCursor />
-        <ScrollProgressBar />
-        <Navbar />
-        <main className="flex-grow relative">{children}</main>
-        <Footer />
+        <SmoothScrollProvider>
+          <LoadingScreen />
+          <CustomCursor />
+          <ScrollProgressBar />
+          <Navbar />
+          <main className="flex-grow relative">{children}</main>
+          <Footer />
+        </SmoothScrollProvider>
       </body>
     </html>
   );

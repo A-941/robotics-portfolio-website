@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { GlowBackground } from "@/components/GlowBackground";
 
 const CONTACT_REASONS = [
   "💡 Project Collaboration",
@@ -46,10 +47,11 @@ export default function ContactPage() {
 
   return (
     <div
-      className="min-h-screen pt-24 pb-20"
+      className="min-h-screen pt-24 pb-20 relative overflow-hidden"
       style={{ backgroundColor: "var(--bg)" }}
     >
-      <div className="px-6 sm:px-10 lg:px-14 max-w-5xl mx-auto">
+      <GlowBackground variant="dark" />
+      <div className="px-6 sm:px-10 lg:px-14 max-w-5xl mx-auto relative z-10">
 
         {/* Breadcrumb */}
         <div className="mb-14">

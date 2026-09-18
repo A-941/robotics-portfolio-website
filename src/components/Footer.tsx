@@ -6,19 +6,28 @@ export const Footer = () => {
 
   return (
     <footer
-      className="px-6 sm:px-10 lg:px-14 py-8"
-      style={{ borderTop: "1px solid var(--border)" }}
+      className="relative px-6 sm:px-10 lg:px-14 py-10 overflow-hidden"
+      style={{ borderTop: "1px solid rgba(168,85,247,0.1)" }}
     >
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Subtle top accent line */}
+      <div
+        className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+        style={{
+          background: "linear-gradient(90deg, transparent, rgba(168,85,247,0.3) 30%, rgba(168,85,247,0.3) 70%, transparent)",
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         {/* Left: Wordmark + credit */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <span
             className="text-sm font-semibold"
             style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}
           >
-            Robotics Learning Lab
+            ROBOTICS<span style={{ color: "#a855f7" }}>_</span>LAB
           </span>
-          <span className="label" style={{ color: "var(--text-subtle)" }}>
+          <span className="label" style={{ color: "rgba(168,85,247,0.3)" }}>
             Curated by Dhruv · Open Source · {year}
           </span>
         </div>
@@ -43,8 +52,8 @@ export const Footer = () => {
               href={link.href}
               target={link.external ? "_blank" : undefined}
               rel={link.external ? "noopener noreferrer" : undefined}
-              className="label transition-colors hover:text-white"
-              style={{ color: "var(--text-subtle)" }}
+              className="label transition-colors duration-200"
+              style={{ color: "rgba(168,85,247,0.3)" }}
             >
               {link.label}
             </Link>

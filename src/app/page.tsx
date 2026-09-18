@@ -1,37 +1,21 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, useMotionValue } from "motion/react";
 import { projectsData } from "@/data/projectsData";
 import { SkillsSection } from "@/components/SkillsSection";
 import { RoadmapSection } from "@/components/RoadmapSection";
+import { GlowBackground } from "@/components/GlowBackground";
+import { HeroOrbitalEffect } from "@/components/HeroOrbitalEffect";
+import { ParticleCanvas } from "@/components/ParticleCanvas";
+import { ScrollCircuitLab } from "@/components/ScrollCircuitLab";
+import { CircuitSignalBridge } from "@/components/CircuitSignalBridge";
+import { Cpu, Terminal, ArrowRight, Zap } from "lucide-react";
 
 /* =============================================
-   STAGGER REVEAL COMPONENT
-   ============================================= */
-const Reveal = ({
-  children,
-  delay = 0,
-  className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 32 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.8, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
-
-/* =============================================
-   SCROLL REVEAL (viewport)
+   SCROLL REVEAL WRAPPER
    ============================================= */
 const ScrollIn = ({
   children,
@@ -45,15 +29,15 @@ const ScrollIn = ({
   direction?: "up" | "left" | "right";
 }) => {
   const initial =
-    direction === "up" ? { opacity: 0, y: 40 } :
-    direction === "left" ? { opacity: 0, x: -40 } :
-    { opacity: 0, x: 40 };
+    direction === "up" ? { opacity: 0, y: 35 } :
+    direction === "left" ? { opacity: 0, x: -35 } :
+    { opacity: 0, x: 35 };
   return (
     <motion.div
       initial={initial}
       whileInView={{ opacity: 1, y: 0, x: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.75, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.7, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={className}
     >
       {children}
@@ -62,7 +46,7 @@ const ScrollIn = ({
 };
 
 /* =============================================
-   PROJECT ROW — editorial alternating layout
+   CINEMATIC MISSION ROW
    ============================================= */
 const ProjectRow = ({
   project,
@@ -73,126 +57,180 @@ const ProjectRow = ({
 }) => {
   const isEven = index % 2 === 0;
   const ref = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
   const imageY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
 
+  // Pointer-driven light sweep
+  const mx = useMotionValue(0.5);
+  const my = useMotionValue(0.5);
+  const glowX = useTransform(mx, [0, 1], ["0%", "100%"]);
+  const glowY = useTransform(my, [0, 1], ["0%", "100%"]);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!cardRef.current) return;
+      const rect = cardRef.current.getBoundingClientRect();
+      mx.set((e.clientX - rect.left) / rect.width);
+      my.set((e.clientY - rect.top) / rect.height);
+    },
+    [mx, my]
+  );
+  const handleMouseLeave = useCallback(() => {
+    mx.set(0.5);
+    my.set(0.5);
+  }, [mx, my]);
+
+  const missionCode = `MISSION_00${index + 1}`;
+
   return (
-    <article ref={ref} className="relative">
-      {/* Horizontal rule */}
-      <div
-        className="h-px w-full"
-        style={{ backgroundColor: "var(--border)" }}
-      />
+    <article ref={ref} className="relative group border-b border-purple-500/10">
+      {/* Corner crosshairs */}
+      <span className="absolute -top-2 left-4 text-[10px] font-mono text-purple-500/30 select-none">+</span>
+      <span className="absolute -top-2 right-4 text-[10px] font-mono text-purple-500/30 select-none">+</span>
 
       <div
-        className={`grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-[520px] ${
-          isEven ? "" : "lg:flex-row-reverse"
-        }`}
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="relative grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-[540px] overflow-hidden transition-colors duration-500 bg-transparent"
       >
-        {/* Image column */}
+        {/* Pointer-driven light sweep overlay */}
         <motion.div
-          className={`relative overflow-hidden col-span-1 lg:col-span-7 ${
-            isEven ? "" : "lg:order-2"
-          }`}
-          style={{ minHeight: "360px" }}
+          className="absolute inset-0 pointer-events-none z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(ellipse 60% 60% at ${glowX.get()} ${glowY.get()}, rgba(168,85,247,0.08) 0%, transparent 70%)`,
+          }}
+        />
+
+        {/* Image / Breadboard visual column */}
+        <motion.div
+          className={`relative overflow-hidden col-span-1 lg:col-span-7 ${isEven ? "" : "lg:order-2"}`}
+          style={{ minHeight: "380px" }}
         >
-          {/* Ghost number */}
+          {/* Ghost mission ID */}
           <div
             className="ghost-number absolute select-none pointer-events-none z-0"
             style={{
               right: isEven ? "-0.02em" : "auto",
               left: isEven ? "auto" : "-0.02em",
               bottom: "-0.1em",
-              opacity: 0.03,
-              fontSize: "clamp(5rem, 14vw, 12rem)",
+              color: "rgba(168,85,247,0.035)",
             }}
           >
             {String(index + 1).padStart(2, "0")}
           </div>
 
           <motion.div
-            className="absolute inset-0 cursor-explore"
+            className="absolute inset-0"
             style={{ y: imageY }}
           >
             <Image
               src={project.circuitBreadboardImage || project.thumbnail}
               alt={project.title}
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
               sizes="(max-width: 768px) 100vw, 58vw"
             />
-            {/* Subtle overlay */}
+            {/* Deep Obsidian vignette overlay */}
             <div
               className="absolute inset-0"
               style={{
-                background: "linear-gradient(to bottom, rgba(8,8,8,0.15) 0%, rgba(8,8,8,0.5) 100%)",
+                background: "linear-gradient(to bottom, rgba(5,3,10,0.3) 0%, rgba(5,3,10,0.85) 100%)",
+              }}
+            />
+            {/* Purple ambient light response on hover */}
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              style={{
+                background: "linear-gradient(135deg, rgba(168,85,247,0.15) 0%, transparent 60%)",
               }}
             />
           </motion.div>
 
-          {/* Hover reveal: VIEW label */}
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100"
-            whileHover={{ opacity: 1 }}
-            transition={{ duration: 0.25 }}
-          />
+          {/* Mission Top Header Badge */}
+          <div className="absolute top-5 left-5 z-10 flex items-center gap-2">
+            <span
+              className="label px-3 py-1.5 flex items-center gap-1.5 rounded"
+              style={{
+                color: "#c084fc",
+                border: "1px solid rgba(168,85,247,0.35)",
+                backgroundColor: "rgba(6,4,13,0.88)",
+                backdropFilter: "blur(12px)",
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+              {missionCode}
+            </span>
+
+            <span
+              className="label px-2.5 py-1.5 hidden sm:inline-block rounded"
+              style={{
+                color: "var(--text-subtle)",
+                backgroundColor: "rgba(6,4,13,0.75)",
+                border: "1px solid rgba(255,255,255,0.05)",
+              }}
+            >
+              LEVEL: {project.badge}
+            </span>
+          </div>
         </motion.div>
 
-        {/* Text column */}
+        {/* Mission Dossier & Objective column */}
         <ScrollIn
           delay={0.1}
-          className={`col-span-1 lg:col-span-5 flex flex-col justify-between px-8 py-10 lg:px-12 lg:py-14 ${
-            isEven ? "lg:order-2" : "lg:order-1"
-          }`}
+          className={`col-span-1 lg:col-span-5 flex flex-col justify-between px-8 py-10 lg:px-12 lg:py-14 relative z-10 ${isEven ? "lg:order-2" : "lg:order-1"}`}
         >
           <div>
-            {/* Meta row */}
-            <div className="flex items-center gap-4 mb-8">
-              <span className="label" style={{ color: "var(--text-subtle)" }}>
-                {String(index + 1).padStart(2, "0")} / {String(projectsData.length).padStart(2, "0")}
+            {/* Status metadata row */}
+            <div className="flex items-center gap-3 mb-6">
+              <span className="label text-emerald-400 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                STATUS: READY
               </span>
-              <div className="h-px flex-1" style={{ backgroundColor: "var(--border)" }} />
+              <div className="h-px flex-1" style={{ backgroundColor: "rgba(168,85,247,0.1)" }} />
               <span className="label" style={{ color: "var(--text-subtle)" }}>
-                {project.date}
+                NODE: {project.category}
               </span>
             </div>
 
-            {/* Category */}
-            <p
-              className="label mb-3"
-              style={{ color: "var(--accent)" }}
-            >
-              {project.category}
-            </p>
-
-            {/* Title */}
-            <h2
-              className="display-md mb-6"
-              style={{ color: "var(--text-primary)" }}
-            >
+            {/* Mission Title */}
+            <h2 className="display-md mb-4 text-white group-hover:text-purple-200 transition-colors">
               {project.title}
             </h2>
 
-            {/* Description */}
-            <p
-              className="text-sm leading-relaxed mb-8"
-              style={{ color: "var(--text-secondary)" }}
+            {/* Objective box */}
+            <div
+              className="p-4 rounded-xl border mb-6"
+              style={{
+                backgroundColor: "rgba(12, 9, 24, 0.6)",
+                borderColor: "rgba(168,85,247,0.15)",
+              }}
             >
-              {project.shortDescription}
-            </p>
+              <span className="label block mb-1.5" style={{ color: "var(--purple-bright)" }}>
+                MISSION OBJECTIVE:
+              </span>
+              <p
+                className="text-xs sm:text-sm leading-relaxed"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                {project.shortDescription}
+              </p>
+            </div>
 
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-10">
+            {/* Hardware Tags */}
+            <div className="flex flex-wrap gap-2 mb-8">
               {project.tags.slice(0, 4).map((tag) => (
                 <span
                   key={tag}
-                  className="label px-2.5 py-1.5 border"
+                  className="label px-2.5 py-1 rounded"
                   style={{
-                    color: "var(--text-subtle)",
-                    borderColor: "var(--border)",
+                    color: "var(--text-secondary)",
+                    border: "1px solid rgba(168,85,247,0.14)",
+                    backgroundColor: "rgba(168,85,247,0.04)",
                   }}
                 >
                   {tag}
@@ -201,36 +239,22 @@ const ProjectRow = ({
             </div>
           </div>
 
-          {/* CTA */}
-          <div className="flex items-center gap-8">
+          {/* Action CTAs */}
+          <div className="flex items-center gap-6 pt-4 border-t border-purple-500/10">
             <Link
               href={`/projects/${project.id}`}
-              className="group flex items-center gap-3"
+              className="btn-primary"
             >
-              <motion.span
-                whileHover={{ x: 4 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="text-sm font-semibold"
-                style={{ color: "var(--text-primary)" }}
-              >
-                View Tutorial
-              </motion.span>
-              <motion.span
-                whileHover={{ x: 6 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                style={{ color: "var(--accent)", fontSize: "1.1em" }}
-              >
-                →
-              </motion.span>
+              ENTER LAB →
             </Link>
             <a
               href={project.githubFolderUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="label transition-colors"
+              className="label transition-colors hover:text-purple-300 flex items-center gap-1"
               style={{ color: "var(--text-subtle)" }}
             >
-              Source ↗
+              FIRMWARE SRC ↗
             </a>
           </div>
         </ScrollIn>
@@ -240,7 +264,118 @@ const ProjectRow = ({
 };
 
 /* =============================================
-   HOMEPAGE
+   OLD vs NEW WAY — Scroll-driven story section
+   ============================================= */
+const OldVsNewSection = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+
+  const oldWords = ["WATCH", "READ", "MEMORIZE", "FORGET"];
+  const newWords = ["TRY", "BREAK", "DEBUG", "UNDERSTAND", "PROVE"];
+
+  // Progressive scroll transforms
+  const oldOpacities = oldWords.map((_, i) =>
+    useTransform(scrollYProgress, [0.06 + i * 0.06, 0.16 + i * 0.06], [0.6, 0.05])
+  );
+
+  const newOpacities = newWords.map((_, i) =>
+    useTransform(scrollYProgress, [0.1 + i * 0.08, 0.22 + i * 0.08], [0.1, 1])
+  );
+  const newGlows = newWords.map((_, i) =>
+    useTransform(
+      scrollYProgress,
+      [0.1 + i * 0.08, 0.22 + i * 0.08],
+      ["rgba(168,85,247,0)", "rgba(168,85,247,0.5)"]
+    )
+  );
+
+  return (
+    <section
+      ref={ref}
+      className="relative min-h-[170vh] py-36 overflow-hidden"
+      style={{ backgroundColor: "var(--bg)" }}
+    >
+      <GlowBackground variant="section" />
+
+      <div className="sticky top-0 h-screen flex items-center px-6 sm:px-10 lg:px-14">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
+
+          {/* Old Way */}
+          <div className="flex flex-col gap-2">
+            <p className="label mb-6 flex items-center gap-2" style={{ color: "rgba(168,85,247,0.3)" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+              THE OLD WAY // OBSOLETE
+            </p>
+            {oldWords.map((word, i) => (
+              <motion.div
+                key={word}
+                style={{ opacity: oldOpacities[i] }}
+                className="overflow-hidden"
+              >
+                <span
+                  className="display-lg block"
+                  style={{
+                    color: "var(--text-subtle)",
+                    letterSpacing: "-0.03em",
+                    textDecoration: "line-through",
+                    textDecorationColor: "rgba(168,85,247,0.2)",
+                  }}
+                >
+                  {word}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Divider line */}
+          <div
+            className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px"
+            style={{
+              background: "linear-gradient(to bottom, transparent, rgba(168,85,247,0.25) 30%, rgba(168,85,247,0.25) 70%, transparent)",
+            }}
+          />
+
+          {/* Our Way */}
+          <div className="flex flex-col gap-2">
+            <p className="label mb-6 flex items-center gap-2" style={{ color: "var(--purple-bright)" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+              OUR WAY // FIRST-PRINCIPLES
+            </p>
+            {newWords.map((word, i) => {
+              const isBreak = word === "BREAK";
+              const isDebug = word === "DEBUG";
+              const isProve = word === "PROVE";
+              return (
+                <motion.div
+                  key={word}
+                  style={{ opacity: newOpacities[i] }}
+                  className="overflow-hidden"
+                >
+                  <motion.span
+                    className={`display-lg block ${isBreak ? "text-glitch" : ""} ${isProve ? "text-surge" : ""}`}
+                    style={{
+                      color: isBreak ? "#f43f5e" : isDebug ? "#38bdf8" : isProve ? "#f0ebff" : "#c084fc",
+                      letterSpacing: "-0.03em",
+                      textShadow: newGlows[i] as unknown as string,
+                    }}
+                  >
+                    {word}
+                  </motion.span>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* =============================================
+   MAIN HOMEPAGE
    ============================================= */
 export default function HomePage() {
   const heroRef = useRef<HTMLElement>(null);
@@ -248,218 +383,207 @@ export default function HomePage() {
     target: heroRef,
     offset: ["start start", "end start"],
   });
-  const heroY = useTransform(heroScroll, [0, 1], ["0%", "20%"]);
-  const heroOpacity = useTransform(heroScroll, [0, 0.7], [1, 0]);
+
+  const heroY = useTransform(heroScroll, [0, 1], ["0%", "18%"]);
+  const heroOpacity = useTransform(heroScroll, [0, 0.8], [1, 0]);
+
+  // Words separation on scroll (WOW Moment 1)
+  const word1X = useTransform(heroScroll, [0, 0.7], ["0vw", "-4vw"]);
+  const word2X = useTransform(heroScroll, [0, 0.7], ["0vw", "3vw"]);
+  const word3X = useTransform(heroScroll, [0, 0.7], ["0vw", "7vw"]);
+
+  const heroWords = [
+    { text: "BUILD.", color: "#f0ebff", styleTransform: word1X, padding: "0" },
+    { text: "BREAK.", color: "#c084fc", styleTransform: word2X, padding: "7vw" },
+    { text: "UNDERSTAND.", color: "#a855f7", styleTransform: word3X, padding: "14vw" },
+  ];
 
   return (
-    <div
-      className="flex flex-col"
-      style={{ backgroundColor: "var(--bg)" }}
-    >
-      {/* ============= HERO ============= */}
+    <div className="flex flex-col" style={{ backgroundColor: "var(--bg)" }}>
+
+      {/* ============= HERO (WOW MOMENT 1) ============= */}
       <section
         ref={heroRef}
-        className="relative min-h-screen flex flex-col justify-end overflow-hidden"
-        style={{ paddingBottom: "10vh" }}
+        className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-12 pb-16"
       >
-        {/* Subtle grid background */}
+        {/* Background Atmosphere */}
+        <GlowBackground variant="hero" />
+        <ParticleCanvas count={55} className="z-0" />
+
+        {/* 2.5D Orbital Particle Canvas */}
+        <div className="absolute inset-0 z-0 opacity-70">
+          <HeroOrbitalEffect />
+        </div>
+
+        {/* Ambient Scan Line */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-x-0 h-px pointer-events-none z-10 opacity-25"
           style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
+            background: "linear-gradient(90deg, transparent, rgba(168,85,247,0.7), transparent)",
+            animation: "scan-line 7s linear infinite",
+            animationDelay: "1.5s",
           }}
-          aria-hidden="true"
         />
 
-        {/* Top-right metadata block */}
+        {/* Top-Right Technical Telemetry HUD */}
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.8, duration: 0.6 }}
-          className="absolute top-20 right-6 sm:right-10 lg:right-14 flex flex-col items-end gap-1"
+          transition={{ delay: 1.6, duration: 0.6 }}
+          className="absolute top-20 right-6 sm:right-10 lg:right-14 flex flex-col items-end gap-1.5 z-20 pointer-events-none"
           aria-hidden="true"
         >
-          <span className="label" style={{ color: "var(--text-subtle)" }}>ECE / Embedded</span>
-          <span className="label" style={{ color: "var(--text-subtle)" }}>Est. 2026</span>
-          <span className="label flex items-center gap-1.5" style={{ color: "var(--text-subtle)" }}>
-            <span
-              className="w-1.5 h-1.5 rounded-full inline-block"
-              style={{ backgroundColor: "#4ade80", animation: "pulse 2s infinite" }}
-            />
-            Open Source
+          <span className="label text-[11px] text-purple-400/60 font-bold">
+            ECE // ROBOTICS LAB
+          </span>
+          <span className="label text-[10px] text-purple-400/40">
+            PLATFORM_ID: ATmega328P
+          </span>
+          <span className="label text-[10px] flex items-center gap-1.5 text-emerald-400/90">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            SYS_BUS: 5.02V ACTIVE
           </span>
         </motion.div>
 
-        {/* Accent dot — decorative */}
+        {/* Left Accent Bar */}
         <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.2, duration: 0.5, ease: "backOut" }}
-          className="absolute w-2 h-2 rounded-full"
+          initial={{ scaleY: 0 }}
+          animate={{ scaleY: 1 }}
+          transition={{ delay: 0.8, duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="absolute left-0 top-20 bottom-20 w-px pointer-events-none z-10"
           style={{
-            backgroundColor: "#e8ff00",
-            top: "50%",
-            left: "6px",
-            transform: "translateY(-50%)",
+            background: "linear-gradient(to bottom, transparent, rgba(168,85,247,0.4) 30%, rgba(168,85,247,0.4) 70%, transparent)",
+            transformOrigin: "top",
           }}
           aria-hidden="true"
         />
 
-        {/* Main hero content */}
+        {/* Hero Content */}
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="relative px-6 sm:px-10 lg:px-14 z-10"
+          className="relative px-8 sm:px-12 lg:px-16 z-10 pt-16 sm:pt-20"
         >
-          {/* Overline label */}
-          <Reveal delay={0.4}>
-            <p className="label mb-6 sm:mb-8" style={{ color: "var(--text-subtle)" }}>
-              Open Educational Resource — Arduino &amp; Embedded Systems
-            </p>
-          </Reveal>
+          {/* Overline Badge */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.7 }}
+            className="flex items-center gap-3 mb-8 sm:mb-10"
+          >
+            <span className="label px-3 py-1 rounded border border-purple-500/30 bg-purple-500/10 text-purple-300">
+              PHYSICAL COMPUTING // FIRST PRINCIPLES
+            </span>
+            <div className="h-px w-12 bg-purple-500/30 hidden sm:block" />
+          </motion.div>
 
-          {/* Display headline — editorial, left-aligned */}
-          <div className="overflow-hidden mb-2">
-            <Reveal delay={0.7}>
-              <h1
-                className="display-xl"
-                style={{
-                  color: "var(--text-primary)",
-                  maxWidth: "16ch",
-                }}
-              >
-                Hardware,
-              </h1>
-            </Reveal>
-          </div>
-          <div className="overflow-hidden mb-8 sm:mb-12">
-            <Reveal delay={0.9}>
-              <h1
-                className="display-xl pl-[12vw] sm:pl-[18vw]"
-                style={{
-                  color: "var(--accent)",
-                  maxWidth: "100%",
-                }}
-              >
-                From First Principles.
-              </h1>
-            </Reveal>
-          </div>
-
-          {/* Supporting text + CTA in a row */}
-          <Reveal delay={1.4}>
-            <div className="flex flex-col sm:flex-row sm:items-end gap-8 sm:gap-16 max-w-4xl">
-              <p
-                className="text-sm sm:text-base leading-relaxed max-w-sm"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                An open, first-principles learning hub. Real breadboards, verified firmware, 
-                exact resistor math — without skipping steps.
-              </p>
-
-              <div className="flex flex-col gap-4 sm:gap-3 shrink-0">
-                <a
-                  href="#projects"
-                  className="flex items-center gap-3 group"
+          {/* Giant Stacked Typography — WOW MOMENT 1 */}
+          <div className="mb-10 sm:mb-14">
+            {heroWords.map((item, i) => (
+              <div key={item.text} className="overflow-hidden">
+                <motion.h1
+                  initial={{ y: "105%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{
+                    duration: 0.9,
+                    delay: 0.5 + i * 0.16,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                  }}
+                  style={{
+                    x: item.styleTransform,
+                    color: item.color,
+                    textShadow: i === 2 ? "0 0 60px rgba(168,85,247,0.4), 0 0 120px rgba(168,85,247,0.15)" : "none",
+                    paddingLeft: item.padding,
+                  }}
+                  className="display-2xl tracking-tighter"
                 >
-                  <motion.div
-                    className="w-10 h-10 rounded-full border flex items-center justify-center shrink-0"
-                    style={{ borderColor: "var(--accent)" }}
-                    whileHover={{ scale: 1.1, backgroundColor: "var(--accent)" }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <span style={{ color: "#000", fontSize: "1rem" }}>↓</span>
-                  </motion.div>
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    Explore tutorials
-                  </span>
-                </a>
-
-                <a
-                  href="https://github.com/A-941/arduino-robotics-journey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3"
-                >
-                  <div
-                    className="w-10 h-10 rounded-full border flex items-center justify-center shrink-0"
-                    style={{ borderColor: "var(--border)" }}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                    </svg>
-                  </div>
-                  <span
-                    className="text-sm"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    View source
-                  </span>
-                </a>
+                  {item.text}
+                </motion.h1>
               </div>
+            ))}
+          </div>
+
+          {/* Supporting Row & CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3, duration: 0.8 }}
+            className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 max-w-5xl"
+          >
+            <p
+              className="text-sm sm:text-base leading-relaxed max-w-md"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              An open, rigorous hardware laboratory. Real solderless breadboards, register-level C++ firmware, and exact circuit mathematics — without simulated shortcuts.
+            </p>
+
+            <div className="flex items-center gap-4 shrink-0">
+              <Link href="/projects/led-blink" className="btn-primary">
+                ENTER LAB WORKSPACE →
+              </Link>
+              <Link href="#circuit-bench" className="btn-ghost text-[0.65rem]">
+                TEST BENCH
+              </Link>
             </div>
-          </Reveal>
+          </motion.div>
         </motion.div>
 
-        {/* Bottom scroll indicator */}
-        <Reveal delay={2.0}>
-          <div
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-            aria-hidden="true"
-          >
-            <span className="label" style={{ color: "var(--text-subtle)" }}>
-              Scroll to explore
-            </span>
-            <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              className="w-px h-10"
-              style={{ backgroundColor: "var(--text-subtle)" }}
-            />
-          </div>
-        </Reveal>
+        {/* Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.0, duration: 0.8 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-10"
+          aria-hidden="true"
+        >
+          <span className="label text-[10px]" style={{ color: "rgba(168,85,247,0.3)" }}>
+            SCROLL TO ASSEMBLE
+          </span>
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+            className="w-px h-10"
+            style={{
+              background: "linear-gradient(to bottom, rgba(168,85,247,0.6), transparent)",
+            }}
+          />
+        </motion.div>
       </section>
 
-      {/* ============= SELECTED WORK ============= */}
-      <section id="projects">
+      {/* ============= WOW MOMENT 2: SIGNAL CONDUIT BRIDGE ============= */}
+      <CircuitSignalBridge />
+
+      {/* ============= WOW MOMENT 3: OLD vs NEW WAY ============= */}
+      <OldVsNewSection />
+
+      {/* ============= WOW MOMENT 4: INTERACTIVE HARDWARE BENCH ============= */}
+      <div id="circuit-bench">
+        <ScrollCircuitLab />
+      </div>
+
+      {/* ============= LAB MISSIONS ============= */}
+      <section id="projects" className="relative">
         {/* Section header */}
         <div
-          className="px-6 sm:px-10 lg:px-14 py-16 flex items-end justify-between border-b"
-          style={{ borderColor: "var(--border)" }}
+          className="px-6 sm:px-10 lg:px-14 py-16 flex items-end justify-between"
+          style={{ borderBottom: "1px solid rgba(168,85,247,0.1)" }}
         >
           <ScrollIn>
-            <div className="flex flex-col gap-2">
-              <p className="label" style={{ color: "var(--text-subtle)" }}>
-                Selected Work
+            <div className="flex flex-col gap-3">
+              <p className="label flex items-center gap-2" style={{ color: "var(--purple-bright)" }}>
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                VERIFIED HARDWARE MISSIONS // REPOSITORY
               </p>
-              <h2
-                className="display-md"
-                style={{ color: "var(--text-primary)" }}
-              >
-                Lab Modules
+              <h2 className="display-md" style={{ color: "var(--text-primary)" }}>
+                The Laboratory Modules
               </h2>
             </div>
           </ScrollIn>
 
           <ScrollIn delay={0.15} direction="right">
-            <p
-              className="label hidden sm:block text-right"
-              style={{ color: "var(--text-subtle)" }}
-            >
-              {projectsData.length} Active Tutorials
-              <br />
-              100% Verified Hardware
-            </p>
+            <div className="hidden sm:flex flex-col items-end gap-1 font-mono text-xs text-zinc-400">
+              <span className="text-purple-300 font-bold">{projectsData.length} ACTIVE EXPERIMENTS</span>
+              <span className="text-zinc-600">100% SOLDERLESS VERIFIED</span>
+            </div>
           </ScrollIn>
         </div>
 
@@ -470,74 +594,50 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* Final rule */}
-        <div className="h-px" style={{ backgroundColor: "var(--border)" }} />
+        <div className="h-px" style={{ backgroundColor: "rgba(168,85,247,0.08)" }} />
       </section>
 
-      {/* ============= CURRICULUM ============= */}
+      {/* ============= SKILL CONSTELLATION GRAPH ============= */}
       <SkillsSection />
 
       {/* ============= ROADMAP ============= */}
       <RoadmapSection />
 
-      {/* ============= CONTACT CTA ============= */}
+      {/* ============= CONTACT / CTA ============= */}
       <section
-        className="relative px-6 sm:px-10 lg:px-14 py-32 sm:py-40 overflow-hidden"
-        style={{ borderTop: "1px solid var(--border)" }}
+        className="relative px-6 sm:px-10 lg:px-14 py-32 sm:py-44 overflow-hidden"
+        style={{ borderTop: "1px solid rgba(168,85,247,0.1)" }}
       >
-        {/* Ghost text background */}
-        <div
-          className="ghost-number absolute bottom-0 right-0 leading-none select-none pointer-events-none"
-          aria-hidden="true"
-          style={{ opacity: 0.025 }}
-        >
-          ↗
-        </div>
+        <GlowBackground variant="lab" />
+        <ParticleCanvas count={35} className="z-0" />
 
-        <ScrollIn>
+        <ScrollIn className="relative z-10">
           <div className="max-w-3xl">
-            <p className="label mb-6" style={{ color: "var(--text-subtle)" }}>
-              Get in touch
+            <p className="label mb-6 flex items-center gap-2" style={{ color: "var(--purple-bright)" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+              OPEN HARDWARE PLATFORM
             </p>
-            <h2
-              className="display-lg mb-8"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Questions, feedback,
+            <h2 className="display-lg mb-8" style={{ color: "var(--text-primary)" }}>
+              Have suggestions,{" "}
+              <span className="gradient-text">feedback,</span>
               <br />
-              or collaboration?
+              or want to collaborate?
             </h2>
             <p
               className="text-sm sm:text-base leading-relaxed mb-12 max-w-md"
               style={{ color: "var(--text-secondary)" }}
             >
-              Found a circuit error? Want to contribute a module? Just curious?
-              Reach out — this is an open resource built for learners.
+              Found a circuit bug? Want to contribute an experimental module? Reach out — this is an open educational lab built for aspiring roboticists.
             </p>
             <div className="flex flex-wrap items-center gap-6">
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-3 group"
-              >
-                <motion.div
-                  className="px-6 py-3 font-semibold text-sm"
-                  style={{
-                    backgroundColor: "#e8ff00",
-                    color: "#000",
-                  }}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  Get in touch →
-                </motion.div>
+              <Link href="/contact" className="btn-primary">
+                GET IN TOUCH →
               </Link>
               <a
                 href="https://github.com/A-941/arduino-robotics-journey"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium transition-colors"
-                style={{ color: "var(--text-secondary)" }}
+                className="text-sm font-medium transition-colors hover:text-purple-300 text-zinc-400"
               >
                 Contribute on GitHub ↗
               </a>

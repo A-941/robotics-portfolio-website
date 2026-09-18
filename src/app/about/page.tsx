@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { GlowBackground } from "@/components/GlowBackground";
 
 export const metadata = {
   title: "Resource Guide & Engineering Philosophy | Robotics Lab",
@@ -42,10 +43,11 @@ const STACK = [
 export default function AboutPage() {
   return (
     <div
-      className="min-h-screen pt-24 pb-20"
+      className="min-h-screen pt-24 pb-20 relative overflow-hidden"
       style={{ backgroundColor: "var(--bg)" }}
     >
-      <div className="px-6 sm:px-10 lg:px-14 max-w-5xl mx-auto">
+      <GlowBackground variant="section" />
+      <div className="px-6 sm:px-10 lg:px-14 max-w-5xl mx-auto relative z-10">
 
         {/* Breadcrumb */}
         <div className="mb-14">

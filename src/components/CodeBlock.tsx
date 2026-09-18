@@ -26,21 +26,22 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
     }
   };
 
-  // Simple, clean syntax tokenization for C++/Arduino code
   const renderHighlightedCode = (text: string) => {
     const lines = text.split("\n");
     return lines.map((line, idx) => {
-      // Check if full comment
       const isComment = line.trim().startsWith("//") || line.trim().startsWith("/*") || line.trim().startsWith("*");
-      
+
       return (
-        <div key={idx} className="table-row group hover:bg-zinc-800/40 transition-colors">
-          <span className="table-cell pr-4 text-right select-none text-zinc-600 group-hover:text-zinc-400 font-mono text-xs w-10">
+        <div key={idx} className="table-row group hover:bg-purple-950/20 transition-colors">
+          <span
+            className="table-cell pr-4 text-right select-none font-mono text-xs w-10 opacity-35 group-hover:opacity-75 transition-opacity"
+            style={{ color: "var(--purple-bright)" }}
+          >
             {idx + 1}
           </span>
-          <span className="table-cell whitespace-pre font-mono text-xs sm:text-sm pl-2">
+          <span className="table-cell whitespace-pre font-mono text-xs sm:text-sm pl-3">
             {isComment ? (
-              <span className="text-zinc-500 italic">{line}</span>
+              <span style={{ color: "var(--text-secondary)", fontStyle: "italic" }}>{line}</span>
             ) : (
               highlightLine(line)
             )}
@@ -51,69 +52,91 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   };
 
   const highlightLine = (line: string) => {
-    // Basic C++/Arduino keywords highlighting
     const keywords = ["const", "int", "void", "for", "if", "else", "return", "unsigned", "long", "float", "char", "bool"];
     const functions = ["setup", "loop", "pinMode", "digitalWrite", "delay", "digitalRead", "analogRead", "analogWrite"];
     const constants = ["OUTPUT", "INPUT", "HIGH", "LOW", "true", "false", "NULL"];
 
-    // Split keeping delimiters for simple token matching
     const tokens = line.split(/(\s+|[(){}[\];,.<>&|!+\-*\/=])/);
 
     return tokens.map((token, i) => {
       if (keywords.includes(token)) {
-        return <span key={i} className="text-purple-400 font-semibold">{token}</span>;
+        return <span key={i} className="font-semibold" style={{ color: "#c084fc" }}>{token}</span>;
       }
       if (functions.includes(token)) {
-        return <span key={i} className="text-cyan-400 font-medium">{token}</span>;
+        return <span key={i} className="font-medium" style={{ color: "#60a5fa" }}>{token}</span>;
       }
       if (constants.includes(token)) {
-        return <span key={i} className="text-amber-400 font-medium">{token}</span>;
+        return <span key={i} className="font-medium" style={{ color: "#f97316" }}>{token}</span>;
       }
       if (/^\d+$/.test(token)) {
-        return <span key={i} className="text-emerald-400">{token}</span>;
+        return <span key={i} style={{ color: "#e879f9" }}>{token}</span>;
       }
       if (token.startsWith("//")) {
-        return <span key={i} className="text-zinc-500 italic">{token}</span>;
+        return <span key={i} style={{ color: "var(--text-secondary)", fontStyle: "italic" }}>{token}</span>;
       }
-      return <span key={i} className="text-zinc-200">{token}</span>;
+      return <span key={i} style={{ color: "var(--text-primary)" }}>{token}</span>;
     });
   };
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-2xl shadow-black/50">
+    <div
+      className="rounded-xl border overflow-hidden shadow-2xl"
+      style={{
+        backgroundColor: "#06040d",
+        borderColor: "rgba(168, 85, 247, 0.16)",
+      }}
+    >
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900/90 border-b border-zinc-800/80">
-        <div className="flex items-center gap-2.5">
+      <div
+        className="flex items-center justify-between px-4 py-2.5 border-b"
+        style={{
+          backgroundColor: "#0d091e",
+          borderColor: "rgba(168, 85, 247, 0.12)",
+        }}
+      >
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
-            <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
-            <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
           </div>
-          <span className="text-zinc-600 text-xs">|</span>
-          <div className="flex items-center gap-1.5 text-zinc-300 font-mono text-xs">
-            <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="text-purple-500/30 text-xs">|</span>
+          <div className="flex items-center gap-1.5 font-mono text-xs text-purple-200">
+            <Terminal className="w-3.5 h-3.5 text-purple-400" />
             <span>{fileName}</span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-[11px] font-medium tracking-wider uppercase text-zinc-400 px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700/50">
+          <span
+            className="label text-[10px] px-2 py-0.5 rounded border"
+            style={{
+              color: "var(--purple-bright)",
+              borderColor: "rgba(168, 85, 247, 0.2)",
+              backgroundColor: "rgba(168, 85, 247, 0.05)",
+            }}
+          >
             {language}
           </span>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700/80 px-2.5 py-1 rounded-md border border-zinc-700/60 transition-all active:scale-95 cursor-pointer"
-            title="Copy code"
+            className="flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded border transition-all active:scale-95 cursor-pointer"
+            style={{
+              color: copied ? "#34d399" : "var(--text-primary)",
+              backgroundColor: "rgba(168, 85, 247, 0.08)",
+              borderColor: copied ? "rgba(52, 211, 153, 0.4)" : "rgba(168, 85, 247, 0.2)",
+            }}
+            title="Copy firmware code"
           >
             {copied ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400 font-medium">Copied!</span>
+                <span className="font-semibold text-emerald-400">COPIED</span>
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy</span>
+                <Copy className="w-3.5 h-3.5 text-purple-300" />
+                <span>COPY</span>
               </>
             )}
           </button>
@@ -121,7 +144,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
       </div>
 
       {/* Code Area */}
-      <div className="p-4 overflow-x-auto max-h-[520px] scrollbar-thin scrollbar-thumb-zinc-700">
+      <div className="p-4 overflow-x-auto max-h-[520px] scrollbar-thin">
         <div className="table w-full">
           {renderHighlightedCode(code)}
         </div>
