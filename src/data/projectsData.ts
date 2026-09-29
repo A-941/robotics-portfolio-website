@@ -352,8 +352,187 @@ void loop() {
       }
     ],
     githubFolderUrl: "https://github.com/A-941/arduino-robotics-journey/tree/main/02-binary-counter"
+  },
+  {
+    id: "radar-system",
+    title: "Radar System — HC-SR04 Ultrasonic Sweep & Live Processing Visualizer",
+    badge: "Project 03",
+    category: "Sensors, Actuation & Real-Time PC Visualization",
+    date: "September 2026",
+    shortDescription: "A 180° sweeping ultrasonic SONAR scanner. An SG90 servo rotates an HC-SR04 sensor degree-by-degree while distance data streams over Serial to a custom Processing 4 radar-scope GUI — red blips mark detected objects within 40 cm.",
+    fullDescription: "The first project bridging embedded sensing with real-time PC visualization. The Arduino continuously sweeps a servo-mounted HC-SR04 ultrasonic sensor through the full 180° arc, transmitting compact angle/distance frames over UART at 9600 baud. A custom Processing sketch receives these frames and renders a live radar scope — concentric range arcs, an animated green sweep line, and bright red detection blips — with a motion-blur persistence effect that mimics a real CRT radar display.",
+    tags: ["HC-SR04", "Ultrasonic Sensing", "Servo PWM", "Serial UART", "Processing 4", "Real-Time Visualization", "Arduino Uno"],
+    thumbnail: "/images/radar-breadboard.jpg",
+    circuitImage: "/images/radar-circuit.png",
+    circuitBreadboardImage: "/images/radar-breadboard.jpg",
+    videoSrc: "/videos/radar-demo.mp4",
+    components: [
+      { name: "Arduino Uno R3", quantity: 1, purpose: "Main microcontroller — servo control + ultrasonic pulse timing + serial TX" },
+      { name: "HC-SR04 Ultrasonic Distance Sensor", quantity: 1, purpose: "Emits 40 kHz ultrasonic pulse and measures echo return time (range: 2–400 cm)" },
+      { name: "SG90 Micro Servo Motor", quantity: 1, purpose: "Rotates HC-SR04 through 0°–180° arc at 1° resolution (PWM controlled)" },
+      { name: "Male-to-Female Jumper Wires", quantity: 7, purpose: "5V, GND, TRIG (Pin 2), ECHO (Pin 3), servo signal (Pin 9), servo power, servo GND" },
+      { name: "USB Type-A to Type-B Cable", quantity: 1, purpose: "Power supply, firmware upload, and live serial data transfer to PC" },
+      { name: "PC running Processing 4", quantity: 1, purpose: "Receives serial frames and renders radar-scope display in real time" }
+    ],
+    wiringSteps: [
+      {
+        step: 1,
+        from: "HC-SR04 VCC",
+        to: "Arduino 5V Pin",
+        wireColor: "Red wire",
+        description: "Power the HC-SR04 from the Arduino 5V rail. The sensor draws ~15 mA during active pulsing — well within the Uno's 500 mA USB limit."
+      },
+      {
+        step: 2,
+        from: "HC-SR04 GND",
+        to: "Arduino GND Pin",
+        wireColor: "Black wire",
+        description: "Complete the HC-SR04 power circuit with a common ground reference."
+      },
+      {
+        step: 3,
+        from: "HC-SR04 TRIG",
+        to: "Arduino Pin 2",
+        wireColor: "Orange wire",
+        description: "The TRIG pin requires a 10 µs HIGH pulse to initiate each ultrasonic burst. The Arduino drives this from digital pin 2."
+      },
+      {
+        step: 4,
+        from: "HC-SR04 ECHO",
+        to: "Arduino Pin 3",
+        wireColor: "Yellow wire",
+        description: "The ECHO pin goes HIGH for the duration of the return pulse. pulseIn() on pin 3 measures this duration in microseconds."
+      },
+      {
+        step: 5,
+        from: "SG90 Red (VCC)",
+        to: "Arduino 5V Pin",
+        wireColor: "Red wire",
+        description: "The SG90 servo requires 4.8–6V at up to 500 mA stall current. For bench testing, 5V from the Uno is sufficient for a lightly-loaded sweep."
+      },
+      {
+        step: 6,
+        from: "SG90 Brown (GND)",
+        to: "Arduino GND Pin",
+        wireColor: "Brown/Black wire",
+        description: "Servo ground must share the same reference as the Arduino digital logic ground for correct signal interpretation."
+      },
+      {
+        step: 7,
+        from: "SG90 Orange (Signal)",
+        to: "Arduino Pin 9 (PWM)",
+        wireColor: "Orange/Yellow wire",
+        description: "The Servo.h library generates a 50 Hz PWM signal on pin 9. 1 ms pulse = 0°, 1.5 ms = 90°, 2 ms = 180°. The library handles this automatically via servo.write(angle)."
+      }
+    ],
+    theoryTitle: "Ultrasonic Distance Sensing — Physics & Timing Mathematics",
+    theoryContent: {
+      heading: "How HC-SR04 Converts Sound to Distance",
+      body: [
+        "The HC-SR04 works by emitting a short 40 kHz ultrasonic burst (8 pulses triggered by a 10 µs logic-HIGH on TRIG) and then timing how long the ECHO pin stays HIGH — this duration equals the round-trip travel time for sound to reach an object and return.",
+        "Speed of sound in air at ~20°C is approximately 343 m/s = 34,300 cm/s = 0.0343 cm/µs. Since the echo time covers the round-trip (out and back), we divide by 2 for the one-way distance.",
+        "This gives us the fundamental distance formula: distance_cm = (echo_µs × 0.0343) / 2, which simplifies to: distance_cm = echo_µs / 58.",
+        "In the firmware we use integer arithmetic: distance_cm = (duration / 2) / 29 — since 1 cm ≈ 29 µs one-way travel time."
+      ],
+      formula: "distance_cm = (echo_pulse_µs / 2) / 29",
+      formulaBreakdown: [
+        { symbol: "echo_pulse_µs", meaning: "ECHO pin HIGH duration measured by pulseIn()", value: "e.g. 1334 µs" },
+        { symbol: "÷ 2", meaning: "Convert round-trip time to one-way travel time", value: "667 µs" },
+        { symbol: "÷ 29 µs/cm", meaning: "Speed of sound: 1 cm ≈ 29 µs at 20°C, 343 m/s", value: "23 cm" },
+        { symbol: "pulseIn timeout", meaning: "38000 µs max — prevents blocking on no echo", value: "≈ 655 cm max range" }
+      ]
+    },
+    codeFileName: "radar_system.ino",
+    code: `/*
+ * Arduino Radar System — Servo Sweep + HC-SR04 Ultrasonic Distance Mapping
+ *
+ * Rotates an SG90 servo motor from 0° to 180° and back while continuously
+ * measuring distance using the HC-SR04 ultrasonic sensor. Distance and angle
+ * data are transmitted over Serial (9600 baud) to the Processing radar
+ * visualizer running on the PC.
+ *
+ * Serial Output Format:
+ *   "<angle>,<distance_cm>."    (dot '.' used as frame delimiter)
+ *   Example: "45,23."
+ *
+ * Hardware Lab: ECE & Robotics Learning Platform
+ * Date:   September 2026
+ */
+
+#include <Servo.h>
+
+const int SERVO_PIN = 9;
+const int TRIG_PIN  = 2;
+const int ECHO_PIN  = 3;
+const int SWEEP_DELAY_MS = 30;
+
+Servo radarServo;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  radarServo.attach(SERVO_PIN);
+  radarServo.write(0);
+  delay(500);
+}
+
+void loop() {
+  for (int angle = 0; angle <= 180; angle++) {
+    radarServo.write(angle);
+    delay(SWEEP_DELAY_MS);
+    sendData(angle, measureDistance());
+  }
+  for (int angle = 180; angle >= 0; angle--) {
+    radarServo.write(angle);
+    delay(SWEEP_DELAY_MS);
+    sendData(angle, measureDistance());
+  }
+}
+
+int measureDistance() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  long duration = pulseIn(ECHO_PIN, HIGH, 38000);
+  int distance = (int)(duration / 2) / 29;
+  if (distance == 0 || distance > 400) return 0;
+  return distance;
+}
+
+void sendData(int angle, int distance) {
+  Serial.print(angle);
+  Serial.print(",");
+  Serial.print(distance);
+  Serial.print(".");
+}`,
+    whatILearned: [
+      "Ultrasonic echo timing directly encodes distance via the speed of sound — no analog signal processing needed, just a precision timer on the ECHO pin.",
+      "The Servo.h library abstracts 50 Hz PWM pulse-width generation into a clean write(angle) API, but internally it maps 0°–180° to 544–2400 µs pulse widths on the PWM timer.",
+      "Serial framing with a delimiter character ('.' in this case) is far more robust than fixed-width packets because it tolerates varying digit counts in angle/distance values.",
+      "Processing's bufferUntil('.') function is the exact complement of the Arduino's Serial.print('.') delimiter — together they form a complete, loss-tolerant serial protocol.",
+      "The fill(0, 4) trick in Processing uses an 8-bit alpha value to slowly fade old frame pixels, creating the characteristic radar persistence/afterglow effect seen on real CRT radar displays."
+    ],
+    beginnerTips: [
+      {
+        title: "Close Serial Monitor Before Opening Processing",
+        tip: "Both the Arduino Serial Monitor and the Processing serial library try to claim the same COM port. If Serial Monitor is open, Processing will throw a 'port busy' exception. Always close the IDE Serial Monitor before launching the Processing radar sketch."
+      },
+      {
+        title: "Mount HC-SR04 Firmly on the Servo",
+        tip: "The HC-SR04 needs to point exactly where the servo is aiming or your angle-to-distance mapping will be off. Use a small bracket, a servo horn with zip tie, or even hot glue to firmly attach the sensor to the servo. Any wobble introduces measurement noise."
+      },
+      {
+        title: "Avoid Pointing at Soft or Angled Surfaces",
+        tip: "Ultrasonic sensors struggle with soft absorbing materials (foam, carpet, fabric) and surfaces angled away from the beam axis. They work best on flat, rigid, perpendicular surfaces. Test with a wall or a book standing upright for clean readings."
+      }
+    ],
+    githubFolderUrl: "https://github.com/A-941/arduino-robotics-journey/tree/main/03-radar-system"
   }
 ];
+
 
 export const skillsList = [
   {
@@ -363,7 +542,9 @@ export const skillsList = [
       { name: "Circuit Prototyping", level: "Core", desc: "Solderless breadboard layout, clean routing, bus rails" },
       { name: "Ohm's Law Application", level: "Theory", desc: "Current limiting, voltage division, component protection" },
       { name: "Arduino Uno (ATmega328P)", level: "Hardware", desc: "Pin capabilities, clock speeds, 5V/3.3V logic levels" },
-      { name: "Component Identification", level: "Practical", desc: "LED polarity, resistor color coding, schematic symbols" }
+      { name: "Component Identification", level: "Practical", desc: "LED polarity, resistor color coding, schematic symbols" },
+      { name: "Ultrasonic Sensing (HC-SR04)", level: "Sensor", desc: "40 kHz echo pulse timing, speed of sound distance calculation" },
+      { name: "Servo PWM Control (SG90)", level: "Actuation", desc: "Servo.h library, 50 Hz PWM, 0°–180° angular positioning" }
     ]
   },
   {
@@ -372,7 +553,9 @@ export const skillsList = [
       { name: "Embedded C / C++", level: "Core", desc: "setup(), loop(), pin arrays, time-based delays" },
       { name: "Bitwise Manipulation", level: "CS", desc: "Right-shift (>>), bitmasking (& 1), binary representation" },
       { name: "Array Pin Mapping", level: "Clean Code", desc: "Scalable pin definitions and programmatic iteration" },
-      { name: "Timing & Signal Cycles", level: "Systems", desc: "Square-wave generation, frequency, cycle control" }
+      { name: "Timing & Signal Cycles", level: "Systems", desc: "Square-wave generation, frequency, cycle control" },
+      { name: "Serial Framing Protocol", level: "Communication", desc: "Delimiter-based UART frames, bufferUntil(), real-time PC data streaming" },
+      { name: "Processing 4 GUI", level: "Visualization", desc: "Radar-scope graphics, trig projection, motion-blur persistence effects" }
     ]
   },
   {
@@ -399,7 +582,7 @@ export const roadmapMilestones = [
     phase: "Phase 2: Sensors & Analog Telemetry",
     status: "in-progress",
     projects: [
-      { title: "HC-SR04 Ultrasonic Distance Sensor", desc: "Echo pulse timing, speed of sound calculation, obstacle sensing" },
+      { title: "Radar System (HC-SR04 + Servo + Processing)", desc: "Ultrasonic sweep, servo PWM, serial framing, live radar GUI — COMPLETED" },
       { title: "LDR Light Sensor & Analog Read (ADC)", desc: "10-bit analog conversion, voltage dividers, threshold triggers" },
       { title: "DHT11 Climate Station", desc: "One-wire digital protocol, temperature & relative humidity logging" }
     ]
