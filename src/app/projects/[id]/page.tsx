@@ -437,7 +437,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <div className="flex items-center gap-2.5">
               <Code className="w-5 h-5 text-purple-400" />
               <h2 className="text-xl font-bold text-white tracking-tight">
-                Verified Firmware Source Code
+                {project.processingCode ? "Firmware & Visualizer Source Code" : "Verified Firmware Source Code"}
               </h2>
             </div>
             <a
@@ -452,13 +452,18 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </a>
           </div>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            Embedded C++ sketch verified on ATmega328P hardware with precise microsecond timing and register pin assignment.
+            {project.processingCode
+              ? "Arduino C++ firmware for servo + ultrasonic sweep, plus the Processing 4 radar-scope visualizer. Switch tabs to view both files."
+              : "Embedded C++ sketch verified on ATmega328P hardware with precise microsecond timing and register pin assignment."}
           </p>
 
           <CodeBlock
             fileName={project.codeFileName}
             code={project.code}
             language="Arduino C++"
+            secondFileName={project.processingFileName}
+            secondCode={project.processingCode}
+            secondLanguage="Processing 4"
           />
         </section>
 
